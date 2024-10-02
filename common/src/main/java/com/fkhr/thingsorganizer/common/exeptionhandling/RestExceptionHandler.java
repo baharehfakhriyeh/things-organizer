@@ -28,10 +28,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new CustomExeption(HttpStatus.INTERNAL_SERVER_ERROR, ex));
     }
 
-   /* @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
-        return buildResponseEntity(new CustomExeption(HttpStatus.BAD_REQUEST, ex));
-    }*/
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<Object> handleException(Exception ex) {
+        return buildResponseEntity(new CustomExeption(HttpStatus.INTERNAL_SERVER_ERROR, ex));
+    }
 
     private ResponseEntity<Object> buildResponseEntity(CustomExeption error) {
         ObjectMapper objectMapper = new ObjectMapper();
