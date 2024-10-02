@@ -10,14 +10,14 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
 @Aspect
 public class LoggingAspect {
     private static final Logger logger = LogManager.getLogger(LoggingAspect.class);
     @Autowired
     private InfoProperties infoProperties;
     @Pointcut("execution(* com.fkhr.thingsorganizer.*.service.*.save(..))")
-    private void saveMethods(){}
+    private void saveMethods(){
+    }
 
     @Pointcut("within(com.fkhr.thingsorganizer.*.controller..*)")
     private void apiCalls(){}
