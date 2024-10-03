@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+    //todo: complete exception handling for all remaining types.
     @ExceptionHandler(CustomExeption.class)
     protected ResponseEntity<Object> handleCustomExeption(CustomExeption ex) {
         return buildResponseEntity(ex);

@@ -1,14 +1,9 @@
 package com.fkhr.thingsorganizer.thing.config;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 
 @Configuration
-@Import({com.fkhr.thingsorganizer.common.config.Config.class,
-        DocumentationConfig.class})
-@ComponentScan(basePackages = {"com.fkhr.thingsorganizer.common.exeptionhandling"})
+@Import({com.fkhr.thingsorganizer.common.config.Config.class})
 public class Config {
 
 }
