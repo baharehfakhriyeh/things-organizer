@@ -37,6 +37,13 @@ public class ContentController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @DeleteMapping(value = "/ownertype/{ownertype}/ownerid/{ownerid}")
+    public ResponseEntity deleteContentByOwner(@PathVariable("ownertype") EntityType ownerType,
+                                               @PathVariable("ownerid") String ownerId){
+        Integer result = contentService.deleteByOwner(ownerType, ownerId);
+        return new ResponseEntity(result == 0 ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    }
+
     @GetMapping(value = "/info/id/{id}")
     public ResponseEntity getContentInfoById(@PathVariable String id){
         ContentGetResponse content = contentService.getById(new ObjectId(id));

@@ -39,7 +39,7 @@ public class ContainerServiceImp implements ContainerService{
         }
         else {
             if (!exists(container.getId())) {
-                throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.NOT_FOUND);
+                throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
             } else {
                 result = containerRepository.save(container);
             }
@@ -54,7 +54,7 @@ public class ContainerServiceImp implements ContainerService{
     public void delete(Long id){
         Container container = load(id);
         if(container == null){
-            throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         else{
             thingService.updateContainer(container.getId(), null);
@@ -66,7 +66,7 @@ public class ContainerServiceImp implements ContainerService{
     public Container load(Long id){
         Optional<Container> result = containerRepository.findById(id);
         if(result.equals(Optional.empty())) {
-            throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         else {
             return result.get();
@@ -76,7 +76,7 @@ public class ContainerServiceImp implements ContainerService{
     private Container loadParent(Long parentId){
         Container result = containerRepository.findById(parentId).get();
         if(result == null){
-            throw new  CustomExeption(CustomError.PARENT_CONTAINER_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new  CustomExeption(CustomError.PARENT_CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         else{
             return result;

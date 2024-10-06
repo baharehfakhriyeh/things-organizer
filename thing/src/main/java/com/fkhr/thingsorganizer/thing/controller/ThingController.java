@@ -6,6 +6,7 @@ import com.fkhr.thingsorganizer.thing.dto.ThingCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerId;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateDto;
 import com.fkhr.thingsorganizer.thing.model.Thing;
+import com.fkhr.thingsorganizer.thing.proxy.ContentProxy;
 import com.fkhr.thingsorganizer.thing.service.ThingService;
 import com.fkhr.thingsorganizer.common.util.InfoProperties;
 import org.modelmapper.ModelMapper;

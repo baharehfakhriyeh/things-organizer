@@ -37,7 +37,7 @@ public class ContentServiceImpl implements ContentService {
     public void delete(ObjectId id) {
         Content content = this.load(id);
         if (content == null) {
-            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         contentRepository.delete(content);
     }
@@ -46,7 +46,7 @@ public class ContentServiceImpl implements ContentService {
     public Content load(ObjectId id) {
         Optional<Content> content = contentRepository.findContentInfoById(id);
         if (content.equals(Optional.empty())) {
-            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         return content.get();
     }
@@ -55,6 +55,16 @@ public class ContentServiceImpl implements ContentService {
         Content content = load(id);
         ContentGetResponse contentGetResponse = modelMapper.map(content, ContentGetResponse.class);
         return contentGetResponse;
+    }
+
+    @Override
+    public Integer deleteByOwner(EntityType ownerType, String ownerId) {
+        Boolean contentsExist = contentRepository.countContentByOwnerTypeAndOwnerId(ownerType, ownerId);
+        Integer result = 0;
+        if(contentsExist) {
+            result = contentRepository.deleteByOwnerTypeAndOwnerId(ownerType, ownerId);
+        }
+        return result;
     }
 
     @Override
@@ -74,7 +84,7 @@ public class ContentServiceImpl implements ContentService {
     public Content download(ObjectId id) {
         Optional<Content> contentOptional = contentRepository.findById(id);
         if(contentOptional.isEmpty()){
-            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.NOT_FOUND);
+            throw new CustomExeption(CustomError.CONTENT_NOT_FOUND, HttpStatus.ACCEPTED);
         }
         return contentOptional.get();
     }

@@ -2,19 +2,16 @@ package com.fkhr.thingsorganizer.thing.service;
 
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.thing.model.Thing;
+import com.fkhr.thingsorganizer.thing.proxy.ContentProxy;
 import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,12 +22,14 @@ class ThingServiceImplTest {
     ThingRepository thingRepository;
     @Mock
     ContainerService containerService;
+    @Mock
+    ContentProxy contentProxy;
     AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        thingService = new ThingServiceImpl(thingRepository, containerService);
+        thingService = new ThingServiceImpl(thingRepository, containerService, contentProxy);
     }
 
     @AfterEach

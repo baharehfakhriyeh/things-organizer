@@ -16,4 +16,10 @@ public interface ContentRepository extends MongoRepository<Content, ObjectId> {
     public Optional<Content> findContentInfoById(ObjectId id);
     @Query(value = "{'ownerType' : ?0, 'ownerId': ?1 }", fields = "{ 'data' : 0 }")
     List<Optional<Content>> findContentByOwnerTypeAndOwnerId(EntityType ownerType, String ownerId);
+
+    @Query(value = "{'ownerType' : ?0, 'ownerId': ?1 }", exists = true)
+    Boolean countContentByOwnerTypeAndOwnerId(EntityType ownerType, String ownerId);
+
+    @Query(value = "{'ownerType' : ?0, 'ownerId': ?1 }", delete = true)
+    Integer deleteByOwnerTypeAndOwnerId(EntityType ownerType, String ownerId);
 }

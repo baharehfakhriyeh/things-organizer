@@ -6,9 +6,21 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties("info")
 public class InfoProperties {
+    private boolean visible;
     private String name;
     private String surname;
     private String role;
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        if(visible == null){
+            visible = false;
+        }
+        this.visible = visible;
+    }
 
     public String getName() {
         return name;
