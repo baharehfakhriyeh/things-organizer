@@ -25,6 +25,7 @@
 		<module>common</module>
 		<module>thing</module>
 		<module>content</module>
+		<module>naming-server</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -70,6 +71,11 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<dependency>
