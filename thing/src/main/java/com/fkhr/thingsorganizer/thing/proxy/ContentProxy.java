@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Component
-@FeignClient(name = "content", url = "http://localhost:9092/content/api")
+//@FeignClient(name = "content", url = "http://localhost:9092/content/api")
+@FeignClient(name = "content")
 public interface ContentProxy {
     @DeleteMapping(value = "/content/ownertype/{ownertype}/ownerid/{ownerid}")
     ResponseEntity deleteContentByOwner(@PathVariable("ownertype") EntityType ownerType,

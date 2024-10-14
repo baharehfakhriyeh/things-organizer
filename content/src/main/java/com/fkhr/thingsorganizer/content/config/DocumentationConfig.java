@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,14 +12,19 @@ import java.util.Arrays;
 
 @Configuration
 public class DocumentationConfig {
+    @Value("${openapi.server.gateway.url}")
+    private String serverGatewayUrl;
+
+    @Value("${openapi.server.local.url}")
+    private String serverLocalUrl;
     @Bean
     OpenAPI openAPI(){
         Server localServer = new Server();
-        localServer.setDescription("local");
-        localServer.setUrl("http://localhost:9092/content/api");
+        localServer.setDescription("gateway");
+        localServer.setUrl(serverGatewayUrl);
         Server testServer = new Server();
-        testServer.setDescription("test");
-        testServer.setUrl("http://localhost:9094/content/api");
+        testServer.setDescription("local");
+        testServer.setUrl(serverLocalUrl);
         OpenAPI openAPI = new OpenAPI();
         openAPI.info(new Info()
                 .title("Tutorial ThingsOrganizer Content Module Rest API")
