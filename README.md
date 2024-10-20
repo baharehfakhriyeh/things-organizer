@@ -37,7 +37,7 @@
 
 ## Usage
 
-Once the application is running, you can interact with the API using tools like **Postman** or **cURL**. The API allows you to:
+Once the application is running, you can interact with the API using tools like **Postman** ,**cURL** or the configured swagger document URL. The API allows you to:
 
 - Add **Things** and **Containers**
 - Associate **Contents** with Things, Containers, or other Contents
