@@ -1,0 +1,89 @@
+version: '3.7'
+#host file path: C:\Windows\System32\drivers\etc
+services:
+  config-server:
+    image: bhrfkhr/config-server:0.0.1
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "8888:8888"
+    networks:
+      - thing-organizer-network
+    environment:
+      SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
+
+  naming-server:
+    image: bhrfkhr/naming-server:0.0.1
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "8761:8761"
+    networks:
+      - thing-organizer-network
+    depends_on:
+      - config-server
+    environment:
+      SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
+
+  api-gateway:
+    image: bhrfkhr/api-gateway:0.0.1-SNAPSHOT
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "8765:8765"
+    networks:
+      - thing-organizer-network
+    depends_on:
+      - config-server
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://api-gateway:8765/thing
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path=/v3/api-docs
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[1]: Method=GET
+
+  thing:
+    image: bhrfkhr/things-organizer-thing:1.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "9091:9091"
+    networks:
+      - thing-organizer-network
+    depends_on:
+      - config-server
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
+      OPENAPI.SERVER.GATEWAY.URL: http://api-gateway:8765/thing
+      OPENAPI.SERVER.LOCAL.URL: http://thing:9091
+
+  content:
+    image: bhrfkhr/things-organizer-content:1.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "9092:9092"
+    networks:
+      - thing-organizer-network
+    depends_on:
+      - config-server
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
+
+networks:
+  thing-organizer-network:

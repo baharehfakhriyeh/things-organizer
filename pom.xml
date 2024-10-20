@@ -26,6 +26,7 @@
 		<module>thing</module>
 		<module>content</module>
 		<module>naming-server</module>
+		<module>api-gateway</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
