@@ -6,6 +6,7 @@
 
 - Organize **Things** into **Containers**
 - Manage **Contents** that can belong to Things, Containers, or other Contents
+- A **job** puts all the Things with no Container into the root one.
 - **Spring MVC**-based web services for API interactions
 - Use **SQL Server** to store Things and Containers
 - Use **MongoDB** to store Contents for enhanced scalability and flexibility
@@ -37,9 +38,9 @@
 
 ## Usage
 
-Once the application is running, you can interact with the API using tools like **Postman** ,**cURL** or the configured swagger document URL. The API allows you to:
+Once the application is running, Use the **Swagger UI** to test and explore the API endpoints or interact with the API using tools like **Postman** ,**cURL**. The API allows you to:
 
 - Add **Things** and **Containers**
 - Associate **Contents** with Things, Containers, or other Contents
-- Enjoy the **job** putting all the Things with no Container into the root one.
+- Query and retrieve data of Things, Containers and Contents from both **SQL Server** and **MongoDB** databases
 - Use the **Swagger UI** to test and explore the API endpoints
