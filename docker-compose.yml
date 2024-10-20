@@ -1,5 +1,5 @@
 version: '3.7'
-#host file path: C:\Windows\System32\drivers\etc
+
 services:
   config-server:
     image: bhrfkhr/config-server:0.0.1
