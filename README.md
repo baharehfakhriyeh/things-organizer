@@ -20,7 +20,7 @@
 - **Spring MVC**: To handle HTTP requests and implement web services.
 - **Spring Data JPA**: For SQL Server integration and managing the Things and Containers.
 - **Spring Data MongoDB**: To manage the storage of Contents in MongoDB.
-- **Spring Cloud**: For developing microservices, utilized **Naming-server**, **config-server**, **api-gateway** and **Feign** .
+- **Spring Cloud**: For developing microservices, utilized **Naming-Server**, **Config-Server**, **Api-Gateway** and **Feign** .
 - **Docker**: To containerize the application, making it easy to deploy and manage.
 - **SQL Server**: For relational data storage, handling Things and Containers.
 - **MongoDB**: NoSQL database used for storing flexible, schema-less Content data.
