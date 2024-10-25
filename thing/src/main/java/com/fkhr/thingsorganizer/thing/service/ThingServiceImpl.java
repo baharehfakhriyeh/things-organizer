@@ -3,12 +3,16 @@ package com.fkhr.thingsorganizer.thing.service;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.common.util.EntityType;
+import com.fkhr.thingsorganizer.thing.Enum.CacheLabel;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
 import com.fkhr.thingsorganizer.thing.proxy.ContentProxy;
 import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +64,12 @@ public class ThingServiceImpl implements ThingService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {@CacheEvict(cacheNames = "thing", key = "#id"),
+                    @CacheEvict(cacheNames = "thingList", allEntries = true)
+            }
+    )
     public void delete(Long id){
         Thing thing = this.load(id);
         if(thing != null) {
@@ -78,6 +88,7 @@ public class ThingServiceImpl implements ThingService {
     }
 
     @Override
+    @Cacheable(value = "thing", key = "#id")
     public Thing load(Long id) {
         Optional<Thing> result = thingRepository.findById(id);
         if(result.equals(Optional.empty())){
@@ -89,6 +100,7 @@ public class ThingServiceImpl implements ThingService {
     }
 
     @Override
+    @Cacheable(value = "thingList")
     public List<Thing> findAll(){
         return thingRepository.findAll();
     }
@@ -106,11 +118,16 @@ public class ThingServiceImpl implements ThingService {
         Pageable pageable = PageRequest.of(page, size);
         List<Thing> things = thingRepository.searchThings(
                 thingFilters.getTitle(), thingFilters.getWeight(),
-                thingFilters.getContainer().getId(),
-                thingFilters.getContainer().getTitle(), pageable);
+                thingFilters.getContainer() != null ? thingFilters.getContainer().getId() : null,
+                thingFilters.getContainer() != null ? thingFilters.getContainer().getTitle() : null, pageable);
         return things;
     }
     @Transactional
+    @Caching(
+            evict = {@CacheEvict(cacheNames = "thing", allEntries = true),
+                    @CacheEvict(cacheNames = "thingList", allEntries = true)
+            }
+    )
     public Integer updateContainer(Long oldContainerId, Long newContainerId){
         if(newContainerId == null || containerService.exists(newContainerId)) {
             return thingRepository.updateContainer(oldContainerId, newContainerId);

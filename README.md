@@ -6,11 +6,13 @@
 
 - Organize **Things** into **Containers**
 - Manage **Contents** that can belong to Things, Containers, or other Contents
-- A **job** puts all the Things with no Container into the root one.
+- A **job** puts all the Things with no Container into the specified Container.
+- **Caching** Things in **Redis**.
 - **Spring MVC**-based web services for API interactions
 - Use **SQL Server** to store Things and Containers
 - Use **MongoDB** to store Contents for enhanced scalability and flexibility
 - **Swagger** integration for interactive API documentation
+- **Logging** API calls in files.
 
 ## Technologies Used
 
@@ -18,11 +20,14 @@
 - **Spring MVC**: To handle HTTP requests and implement web services.
 - **Spring Data JPA**: For SQL Server integration and managing the Things and Containers.
 - **Spring Data MongoDB**: To manage the storage of Contents in MongoDB.
-- **Spring Cloud**: for developing microservices, utilized Naming-server, config-server, api-gateway and Feign .
+- **Spring Cloud**: For developing microservices, utilized **Naming-server**, **config-server**, **api-gateway** and **Feign** .
 - **Docker**: To containerize the application, making it easy to deploy and manage.
 - **SQL Server**: For relational data storage, handling Things and Containers.
 - **MongoDB**: NoSQL database used for storing flexible, schema-less Content data.
+- **Redis Cache**: For caching most used data.
 - **Swagger**: For generating API documentation and allowing users to explore the API interactively.
+- **Log4j2**: For generating and archiving logs.
+- **AspectJ**: For cross-cutting concerns such as logging.
 - **JUnit**: For unit testing the application.
 - **Maven**: For project build, dependency management, and version control.
 
@@ -33,6 +38,7 @@
 - **Java 17**
 - **SQL Server**
 - **MongoDB**
+- **Redis Cache**
 - **Maven**
 - **Docker** (optional, if using Docker for deployment)
 
@@ -42,5 +48,4 @@ Once the application is running, Use the **Swagger UI** to test and explore the 
 
 - Add **Things** and **Containers**
 - Associate **Contents** with Things, Containers, or other Contents
-- Query and retrieve data of Things, Containers and Contents from both **SQL Server** and **MongoDB** databases
-- Use the **Swagger UI** to test and explore the API endpoints
+- Query and retrieve data of Things, Containers and Contents.

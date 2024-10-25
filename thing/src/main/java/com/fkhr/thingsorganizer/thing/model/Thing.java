@@ -2,8 +2,10 @@ package com.fkhr.thingsorganizer.thing.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
-public class Thing {
+public class Thing implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
