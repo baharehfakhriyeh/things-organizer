@@ -3,9 +3,13 @@ package com.fkhr.thingsorganizer.content.dto;
 import com.fkhr.thingsorganizer.common.util.EntityType;
 import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
 import java.io.Serializable;
 
 public class ContentCreateRequest implements Serializable {
+=======
+public class ContentCreateRequest {
+>>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
 
     String text;
     MultipartFile data;

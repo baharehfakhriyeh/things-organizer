@@ -1,5 +1,6 @@
 package com.fkhr.thingsorganizer.content.dto;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fkhr.thingsorganizer.common.util.EntityType;
 import com.fkhr.thingsorganizer.content.util.ObjectIdSerializer;
@@ -11,13 +12,24 @@ public class ContentGetResponse implements Serializable {
 
     @JsonSerialize(using = ObjectIdSerializer.class)
     ObjectId id;
+=======
+import com.fkhr.thingsorganizer.common.util.EntityType;
+
+public class ContentGetResponse {
+
+    Long id;
+>>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
     String text;
     String name;
     String extention;
     EntityType ownerType;
     String ownerId;
 
+<<<<<<< HEAD
     public ContentGetResponse(ObjectId id, String text, String name, String extention,
+=======
+    public ContentGetResponse(Long id, String text, String name, String extention,
+>>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
                               EntityType ownerType, String ownerId) {
         this.id = id;
         this.text = text;
@@ -30,11 +42,19 @@ public class ContentGetResponse implements Serializable {
     public ContentGetResponse() {
     }
 
+<<<<<<< HEAD
     public ObjectId getId() {
         return id;
     }
 
     public void setId(ObjectId id) {
+=======
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+>>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
         this.id = id;
     }
 
