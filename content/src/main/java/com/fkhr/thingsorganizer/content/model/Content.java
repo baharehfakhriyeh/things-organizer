@@ -1,12 +1,6 @@
 package com.fkhr.thingsorganizer.content.model;
 
-<<<<<<< HEAD
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fkhr.thingsorganizer.common.util.EntityType;
-import com.fkhr.thingsorganizer.content.util.ObjectIdSerializer;
-=======
-import com.fkhr.thingsorganizer.common.util.EntityType;
->>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
 import jakarta.persistence.GeneratedValue;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;

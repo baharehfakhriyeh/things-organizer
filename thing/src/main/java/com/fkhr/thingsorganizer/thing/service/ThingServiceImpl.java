@@ -66,13 +66,8 @@ public class ThingServiceImpl implements ThingService {
     @Override
     @Transactional
     @Caching(
-<<<<<<< HEAD
             evict = {@CacheEvict(cacheNames = "com.fkhr.thingsorganizer.thing.model.thing", key = "#id"),
                     @CacheEvict(cacheNames = "com.fkhr.thingsorganizer.thing.model.thingList", allEntries = true)
-=======
-            evict = {@CacheEvict(cacheNames = "thing", key = "#id"),
-                    @CacheEvict(cacheNames = "thingList", allEntries = true)
->>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
             }
     )
     public void delete(Long id){
@@ -93,11 +88,7 @@ public class ThingServiceImpl implements ThingService {
     }
 
     @Override
-<<<<<<< HEAD
     @Cacheable(value = "com.fkhr.thingsorganizer.thing.model.thing", key = "#id")
-=======
-    @Cacheable(value = "thing", key = "#id")
->>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
     public Thing load(Long id) {
         Optional<Thing> result = thingRepository.findById(id);
         if(result.equals(Optional.empty())){
@@ -109,11 +100,7 @@ public class ThingServiceImpl implements ThingService {
     }
 
     @Override
-<<<<<<< HEAD
     @Cacheable(value = "com.fkhr.thingsorganizer.thing.model.thingList")
-=======
-    @Cacheable(value = "thingList")
->>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
     public List<Thing> findAll(){
         return thingRepository.findAll();
     }
@@ -137,13 +124,8 @@ public class ThingServiceImpl implements ThingService {
     }
     @Transactional
     @Caching(
-<<<<<<< HEAD
             evict = {@CacheEvict(cacheNames = "com.fkhr.thingsorganizer.thing.model.thing", allEntries = true),
                     @CacheEvict(cacheNames = "com.fkhr.thingsorganizer.thing.model.thingList", allEntries = true)
-=======
-            evict = {@CacheEvict(cacheNames = "thing", allEntries = true),
-                    @CacheEvict(cacheNames = "thingList", allEntries = true)
->>>>>>> d8afa708b0e5d3f821f70c8970c0e8ebb692ea4d
             }
     )
     public Integer updateContainer(Long oldContainerId, Long newContainerId){
