@@ -1,0 +1,4 @@
+mongo:
+mongodb+srv://things-organizer.og9gzqn.mongodb.net/" --apiVersion 1 --username betagenius
+
+pass: fkhr
