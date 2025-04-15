@@ -31,6 +31,12 @@
             <artifactId>mongodb-driver-sync</artifactId>
             <version>5.0.0</version>
         </dependency>-->
+
+        <dependency>
+            <groupId>com.fkhr.thingsorganizer</groupId>
+            <artifactId>common-security</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

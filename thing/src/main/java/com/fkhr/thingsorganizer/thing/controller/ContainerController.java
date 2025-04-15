@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/container", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/containers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ContainerController {
     @Autowired
     private ModelMapper modelMapper;

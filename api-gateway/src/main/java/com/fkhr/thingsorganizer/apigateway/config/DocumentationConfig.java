@@ -1,4 +1,4 @@
-package com.fkhr.thingsorganizer.thing.config;
+package com.fkhr.thingsorganizer.apigateway.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -17,36 +17,17 @@ import java.util.List;
 
 @Configuration
 public class DocumentationConfig {
-    @Value("${openapi.server.gateway.url}")
-    private String serverGatewayUrl;
-
-    @Value("${openapi.server.local.url}")
-    private String serverLocalUrl;
-
     @Bean
     OpenAPI openAPI(){
-        Server localServer = new Server();
-        localServer.setDescription("gateway");
-        localServer.setUrl(serverGatewayUrl);
-        Server testServer = new Server();
-        testServer.setDescription("local");
-        testServer.setUrl(serverLocalUrl);
         OpenAPI openAPI = new OpenAPI();
         openAPI.info(new Info()
-                .title("Tutorial ThingsOrganizer Thing Module Rest API")
+                .title("Tutorial ThingsOrganizer API Gateway Module")
                 .description(
-                        "ThingsOrganizer project Thing module documentation")
+                        "ThingsOrganizer project API Gateway module documentation")
                 .version("1.0.0")
                 .contact(new Contact().name("Fakhriyeh").
                         url("https://fakhriyeh.com").email("test@fakhriyeh.com")));
-        openAPI.setServers(Arrays.asList(localServer, testServer));
-        openAPI.components(new Components()
-                        .addSecuritySchemes("BasicAuthentication",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")))
-                // Setting global security requirement
-                .security(List.of(new SecurityRequirement().addList("BasicAuthentication")));
+
         return openAPI;
     }
 

@@ -7,5 +7,6 @@ public interface BaseService<T, I> {
     void delete(I id);
     T load(I id);
     List<T> findAll();
+    List<T> findAll(int page, int size);
     boolean exists(I id);
 }

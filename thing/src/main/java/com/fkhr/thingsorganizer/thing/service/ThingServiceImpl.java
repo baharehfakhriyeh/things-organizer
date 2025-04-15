@@ -104,6 +104,11 @@ public class ThingServiceImpl implements ThingService {
     public List<Thing> findAll(){
         return thingRepository.findAll();
     }
+    @Override
+    public List<Thing> findAll(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return thingRepository.findAll(pageable).toList();
+    }
 
     @Override
     public boolean exists(Long id){

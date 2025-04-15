@@ -47,7 +47,7 @@ services:
       EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
       SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://api-gateway:8765/thing
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path=/v3/api-docs
+      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path=/api-docs
       SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[1]: Method=GET
 
   thing:

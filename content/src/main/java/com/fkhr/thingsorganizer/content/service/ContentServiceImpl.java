@@ -73,6 +73,11 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public List<Content> findAll(int page, int size) {
+        return null;
+    }
+
+    @Override
     public boolean exists(ObjectId id) {
         if (this.load(id) != null)
             return true;

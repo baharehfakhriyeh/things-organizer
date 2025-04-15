@@ -6,6 +6,8 @@ import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.repository.ContainerRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -86,6 +88,12 @@ public class ContainerServiceImp implements ContainerService{
     @Override
     public List<Container> findAll(){
         return containerRepository.findAll();
+    }
+
+    @Override
+    public List<Container> findAll(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return containerRepository.findAll(pageable).toList();
     }
 
     public List<Container> search(Container container, int page, int size){

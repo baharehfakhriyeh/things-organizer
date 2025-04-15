@@ -29,7 +29,7 @@ class ThingControllerTest {
 
     @Test
     void getThingById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/thing/id/"+1))
+        mockMvc.perform(MockMvcRequestBuilders.get("/things/id/"+1))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

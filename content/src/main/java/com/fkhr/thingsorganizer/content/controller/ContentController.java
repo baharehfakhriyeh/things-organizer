@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/content", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/contents", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ContentController {
     @Autowired
     private ContentService contentService;

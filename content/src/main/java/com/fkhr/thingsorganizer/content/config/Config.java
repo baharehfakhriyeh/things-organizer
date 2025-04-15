@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @Import({com.fkhr.thingsorganizer.common.config.Config.class,
-        DocumentationConfig.class})
+        com.fkhr.thingsorganizer.commonsecurity.config.SecurityConfig.class})
 @ComponentScan(basePackages = {"com.fkhr.thingsorganizer.common.exeptionhandling"})
 public class Config {
 

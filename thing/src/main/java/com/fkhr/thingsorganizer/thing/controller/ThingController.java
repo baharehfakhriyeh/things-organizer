@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/thing", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/things", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ThingController {
     @Autowired
     private ModelMapper modelMapper;

@@ -1,4 +1,0 @@
-http://localhost:8765/docs.html
-http://localhost:8765/thing/thing
-
-http://localhost:8765/CONTENT/

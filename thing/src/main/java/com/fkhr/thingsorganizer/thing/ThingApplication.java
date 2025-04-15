@@ -17,6 +17,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 @EnableCaching
 @EnableDiscoveryClient
+@ComponentScan(basePackages = {
+        "com.fkhr.thingsorganizer.commonsecurity.service",
+        "com.fkhr.thingsorganizer.thing"})
 public class ThingApplication {
     public static void main(String[] args) {
         SpringApplication.run(ThingApplication.class, args);

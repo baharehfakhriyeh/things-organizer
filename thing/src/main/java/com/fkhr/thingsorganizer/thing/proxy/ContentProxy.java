@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 //@FeignClient(name = "content", url = "http://localhost:9092/content/api")
 @FeignClient(name = "content")
 public interface ContentProxy {
-    @DeleteMapping(value = "/content/ownertype/{ownertype}/ownerid/{ownerid}")
+    @DeleteMapping(value = "/contents/ownertype/{ownertype}/ownerid/{ownerid}")
     ResponseEntity deleteContentByOwner(@PathVariable("ownertype") EntityType ownerType,
                                                @PathVariable("ownerid") String ownerId);
 }
