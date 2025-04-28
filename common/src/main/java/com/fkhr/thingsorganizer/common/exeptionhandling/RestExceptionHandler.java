@@ -3,10 +3,12 @@ package com.fkhr.thingsorganizer.common.exeptionhandling;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.ForbiddenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -40,7 +42,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         ObjectNode jsonError = objectMapper.createObjectNode();
         jsonError.put("code", error.getCode());
         jsonError.put("error", error.getMessage());
-
+        jsonError.put("cause", error.getCause() != null ? error.getCause().getMessage() : "");
+        jsonError.put("time", error.getTimestamp().toString());
         return new ResponseEntity(jsonError, error.getStatus());
     }
 }

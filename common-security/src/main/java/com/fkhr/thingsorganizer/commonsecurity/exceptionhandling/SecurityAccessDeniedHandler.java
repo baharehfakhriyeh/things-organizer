@@ -1,0 +1,35 @@
+package com.fkhr.thingsorganizer.commonsecurity.exceptionhandling;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+public class SecurityAccessDeniedHandler implements AccessDeniedHandler {
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        String message = (accessDeniedException != null && accessDeniedException.getMessage() != null) ?
+                accessDeniedException.getMessage() : "Unauthorized";
+        LocalDateTime currentTime = LocalDateTime.now();
+        response.setHeader("error-reason", "Authentication failed.");
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setContentType("application/json;charset=UTF-8");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonError = objectMapper.createObjectNode();
+        jsonError.put("code", HttpStatus.FORBIDDEN.value());
+        jsonError.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
+        jsonError.put("cause", message);
+        jsonError.put("time", currentTime.toString());
+        response.getWriter().write(jsonError.toString());
+    }
+}
