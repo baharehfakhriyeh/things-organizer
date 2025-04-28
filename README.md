@@ -21,17 +21,18 @@
 - **Spring Data JPA**: For SQL Server integration and managing the Things and Containers.
 - **Spring Data MongoDB**: To manage the storage of Contents in MongoDB.
 - **Spring Cloud**: For developing microservices, utilized **Naming-Server**, **Config-Server**, **Api-Gateway** and **Feign** .
+- **Spring Security**: To handle security features, including **OAuth2** implementation.
 - **Docker**: To containerize the application, making it easy to deploy and manage.
 - **SQL Server**: For relational data storage, handling Things and Containers.
 - **MongoDB**: NoSQL database used for storing flexible, schema-less Content data.
 - **Redis Cache**: For caching most used data.
+- **Keycloak**: Utilized as an optional authorization server.
 - **Swagger**: For generating API documentation and allowing users to explore the API interactively.
 - **Log4j2**: For generating and archiving logs.
 - **AspectJ**: For cross-cutting concerns such as logging.
 - **JUnit**: For unit testing the application.
 - **Maven**: For project build, dependency management, and version control.
 
-## Installation
 
 ### Prerequisites
 
