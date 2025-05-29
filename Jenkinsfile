@@ -1,12 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            // Official Maven image with OpenJDK-17
-            image 'maven:3.8.7-openjdk-17'
-            // Mount Docker socket so we can build & run containers
-            args  '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         COMPOSE_PROJECT_NAME = 'things-organizer'
@@ -20,6 +13,15 @@ pipeline {
         }
 
         stage('Build & Test') {
+            agent {
+                    docker {
+                        // Official Maven image with OpenJDK-17
+                        image 'maven:3.8.7-openjdk-17'
+                        // Mount Docker socket so we can build & run containers
+                        args  '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                        reuseNode true
+                    }
+            }
             steps {
                 // compile, run unit tests, package to local repo
                 sh 'mvn clean install'
