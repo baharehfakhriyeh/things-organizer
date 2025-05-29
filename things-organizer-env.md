@@ -3,6 +3,7 @@
 ##for dockerfiles
 
 DOCKER_BUILDKIT: 1
+
 COMPOSE_DOCKER_CLI_BUILD: 1
 
 ##for security module
