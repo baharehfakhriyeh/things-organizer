@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.fkhr.thingsorganizer</groupId>
     <artifactId>naming-server</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>naming-server</name>
     <description>naming-server</description>
