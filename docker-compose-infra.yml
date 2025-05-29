@@ -1,0 +1,50 @@
+version: '3.8'
+
+# run this with following instruction:
+# docker-compose -f docker-compose-infra.yml up -d
+
+services:
+  redis:
+    image: redis
+    container_name: infra_redis
+    networks:
+      - infra-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    container_name: infra_keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    networks:
+      - infra-network
+    ports:
+      - "4080:8080"    # access Keycloak at http://localhost:4080
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: infra_jenkins
+    user: root
+    networks:
+      - infra-network
+    ports:
+      - "8282:8080"    # access Jenkins UI at http://localhost:8081
+      - "50000:50000"  # agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+networks:
+  infra-network:
+    name: infra-network
+
+volumes:
+  jenkins_home:
+  keycloak_data:
+  redis_data:
