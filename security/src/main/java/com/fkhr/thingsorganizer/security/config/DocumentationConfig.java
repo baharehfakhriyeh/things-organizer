@@ -1,6 +1,6 @@
 package com.fkhr.thingsorganizer.security.config;
 
-import com.fkhr.thingsorganizer.commonsecurity.config.SecurityAuthProperty;
+import com.fkhr.thingsorganizer.commonsecurity.config.SecurityProperty;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -25,10 +25,10 @@ public class DocumentationConfig {
     private String authServerAuthorizationUrl;
     @Value("${security.authserver.token.url}")
     private String authServerTokenUrl;
-    private final SecurityAuthProperty securityAuthProperty;
+    private final SecurityProperty securityProperty;
 
-    public DocumentationConfig(SecurityAuthProperty securityAuthProperty) {
-        this.securityAuthProperty = securityAuthProperty;
+    public DocumentationConfig(SecurityProperty securityProperty) {
+        this.securityProperty = securityProperty;
     }
 
     @Bean
@@ -49,7 +49,7 @@ public class DocumentationConfig {
                         url("https://fakhriyeh.com").email("test@fakhriyeh.com")));
         openAPI.setServers(Arrays.asList(localServer, testServer));
 
-        if(securityAuthProperty.getType().equals(SecurityAuthProperty.AuthType.KEYCLOAK_VALUE)) {
+        if(securityProperty.getAuthtype().equals(SecurityProperty.AuthType.KEYCLOAK_VALUE)) {
             openAPI.components(new Components()
                     .addSecuritySchemes("OAuth2Authentication",
                     new SecurityScheme()
@@ -68,7 +68,7 @@ public class DocumentationConfig {
                             )
             )) ;
             openAPI.security(List.of(new SecurityRequirement().addList("OAuth2Authentication")));
-        } else if (securityAuthProperty.getType().equals(SecurityAuthProperty.AuthType.JWT_VALUE)) {
+        } else if (securityProperty.getAuthtype().equals(SecurityProperty.AuthType.JWT_VALUE)) {
             openAPI.components(new Components()
                     .addSecuritySchemes("BearerAuthentication",
                     new SecurityScheme()
@@ -81,7 +81,7 @@ public class DocumentationConfig {
                                     .scheme("basic")));
             openAPI.security(List.of(new SecurityRequirement().addList("BearerAuthentication"),
                     new SecurityRequirement().addList("BasicAuthentication")));
-        } else if (securityAuthProperty.getType().equals(SecurityAuthProperty.AuthType.BASIC_VALUE)) {
+        } else if (securityProperty.getAuthtype().equals(SecurityProperty.AuthType.BASIC_VALUE)) {
             openAPI.components(new Components()
                     .addSecuritySchemes("BasicAuthentication",
                             new SecurityScheme()

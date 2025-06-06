@@ -1,0 +1,12 @@
+version: "3.8"
+
+# docker-compose -f docker-compose-network.yml up -d
+
+networks:
+  thing-organizer-network:
+    name: thing-organizer-network
+    driver: bridge
+
+  infra-network:
+    name: infra-network
+    driver: bridge

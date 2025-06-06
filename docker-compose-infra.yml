@@ -9,6 +9,7 @@ services:
     container_name: infra_redis
     networks:
       - infra-network
+      - thing-organizer-network
     ports:
       - "6379:6379"
     volumes:
@@ -41,8 +42,13 @@ services:
       - jenkins_home:/var/jenkins_home
 
 networks:
+  thing-organizer-network:
+    name: thing-organizer-network
+    driver: bridge
+
   infra-network:
     name: infra-network
+    driver: bridge
 
 volumes:
   jenkins_home:

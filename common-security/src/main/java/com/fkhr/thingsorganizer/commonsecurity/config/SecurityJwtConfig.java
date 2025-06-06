@@ -5,11 +5,11 @@ import com.fkhr.thingsorganizer.commonsecurity.exceptionhandling.SecurityAuthent
 import com.fkhr.thingsorganizer.commonsecurity.filter.JwtTokeValidatorFilter;
 import com.fkhr.thingsorganizer.commonsecurity.filter.JwtTokenGeneratorFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,9 +28,14 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@ConditionalOnProperty(value = "security.auth.type", havingValue = "jwt")
-@AutoConfigureAfter(com.fkhr.thingsorganizer.common.config.Config.class)
+@ConditionalOnProperty(value = "security.authtype", havingValue = "jwt")
+@AutoConfigureAfter(SecurityProperty.class)
 public class SecurityJwtConfig {
+    private final SecurityProperty securityProperty;
+
+    public SecurityJwtConfig(SecurityProperty securityProperty) {
+        this.securityProperty = securityProperty;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -40,7 +45,7 @@ public class SecurityJwtConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(List.of(SecurityConstant.ALLOWED_ORIGINS));
+                        config.setAllowedOrigins(List.of(securityProperty.getAllowedorigins()));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setAllowCredentials(true);

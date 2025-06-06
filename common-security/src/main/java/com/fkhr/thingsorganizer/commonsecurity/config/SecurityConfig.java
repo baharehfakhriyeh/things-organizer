@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
-@Import({com.fkhr.thingsorganizer.common.config.Config.class,
+@Import({com.fkhr.thingsorganizer.common.config.Config.class,SecurityProperty.class,
         SecurityKeycloakConfig.class, SecurityJwtConfig.class, SecurityBasicConfig.class
 })
 public class SecurityConfig {

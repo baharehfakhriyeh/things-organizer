@@ -1,13 +1,11 @@
 package com.fkhr.thingsorganizer.commonsecurity.config;
 
 import com.fkhr.thingsorganizer.commonsecurity.exceptionhandling.SecurityAccessDeniedHandler;
-import com.fkhr.thingsorganizer.commonsecurity.exceptionhandling.SecurityAuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,12 +24,18 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@Import({com.fkhr.thingsorganizer.common.config.Config.class,
-        SecurityAuthProperty.class
-})
-@ConditionalOnProperty(value = "security.auth.type", havingValue = "keycloak")
-@AutoConfigureAfter(com.fkhr.thingsorganizer.common.config.Config.class)
+/*@Import({com.fkhr.thingsorganizer.common.config.Config.class,
+        SecurityProperty.class
+})*/
+@ConditionalOnProperty(value = "security.authtype", havingValue = "keycloak")
+@AutoConfigureAfter(SecurityProperty.class)
 public class SecurityKeycloakConfig {
+    private final SecurityProperty securityProperty;
+
+    public SecurityKeycloakConfig(SecurityProperty securityProperty) {
+        this.securityProperty = securityProperty;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -43,12 +47,13 @@ public class SecurityKeycloakConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(List.of(SecurityConstant.ALLOWED_ORIGINS));
+                        config.setAllowedOrigins(List.of(securityProperty.getAllowedorigins()));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setExposedHeaders(Arrays.asList(SecurityConstant.JWT_HEADER));
                         config.setMaxAge(3600l);
+                        System.out.println("The allowed origins in keycloak sevurity config: " + config.getAllowCredentials());
                         return config;
                     }
                 }))

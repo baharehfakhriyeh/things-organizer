@@ -1,22 +1,31 @@
 package com.fkhr.thingsorganizer.commonsecurity.config;
 
 import jakarta.validation.constraints.Pattern;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "security.auth")
-public class SecurityAuthProperty {
+@ConfigurationProperties(prefix = "security")
+@AutoConfigureAfter(com.fkhr.thingsorganizer.common.config.Config.class)
+public class SecurityProperty {
     @Pattern(regexp = "keycloak|jwt|basic", message = "Allowed values: keycloak, jwt, basic")
-    private String type = AuthType.KEYCLOAK.value;
+    private String authtype = AuthType.KEYCLOAK.value;
+    private String[] allowedorigins;
 
-    public String getType() {
-        return type;
+    public String getAuthtype() {
+        return authtype;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setAuthtype(String authtype) {
+        this.authtype = authtype;
+    }
+    public String[] getAllowedorigins() {
+        return allowedorigins;
+    }
+
+    public void setAllowedorigins(String[] allowedorigins) {
+        this.allowedorigins = allowedorigins;
     }
 
     public enum AuthType {
@@ -32,7 +41,6 @@ public class SecurityAuthProperty {
         AuthType(String value){
             this.value = value.toLowerCase();
         }
-
 
     }
 }

@@ -5,20 +5,22 @@ version: '3.7'
 # set COMPOSE_DOCKER_CLI_BUILD=1
 # run this with following instruction:
 # docker-compose up --build
+# docker-compose up --build naming-server security thing content api-gateway -d
+# if any full memory error occurred: docker builder prune --all
+# check memory: docker system df
 
 x-common-env: &common-env
   SPRING.CONFIG.IMPORT: optional:configserver:http://config-server:8888
   SPRING_CACHE_TYPE: redis
-  SPRING_CACHE_HOST: infra_redis
-  SPRING_CACHE_PORT: 6379
+  SPRING_REDIS_HOST: infra_redis
+  SPRING_REDIS_PORT: 6379
   #SPRING_CACHE_REDIS_TIME_TO_LIVE: 60000
   SERVER_SERVLET_SESSION_TIMEOUT: 60m
-
-  SECURITY_AUTH_TYPE: keycloak
-  SECURITY_AUTHSERVER_AUTHORIZATION_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/auth
-  SECURITY_AUTHSERVER_TOKEN_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/token
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/certs
-
+  SECURITY_AUTHTYPE: keycloak
+#  SECURITY_AUTHSERVER_AUTHORIZATION_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/auth
+#  SECURITY_AUTHSERVER_TOKEN_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/token
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://infra_keycloak:8080/realms/thingsorganizerrealm/protocol/openid-connect/certs
+  SECURITY_ALLOWEDORIGINS: http://api-gateway:8765,http://api-gateway:4080,http://localhost:8765,http://localhost:4080,http://infra_keycloak:4080
 services:
   config-server:
     image: bhrfkhr/config-server:1.0.0
@@ -38,7 +40,7 @@ services:
       - infra-network
     environment:
       <<: *common-env
-      EUREKA_INSTANCE_HOSTNAME: config-server
+      #EUREKA_INSTANCE_HOSTNAME: config-server
 
   naming-server:
     image: bhrfkhr/naming-server:1.0.0
@@ -124,8 +126,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://host.docker.internal:1433;databaseName=things-organizer;encrypt=true;trustServerCertificate=true;
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD: fakhr
-      OPENAPI.SERVER.GATEWAY.URL: http://api-gateway:8765/security
-      OPENAPI.SERVER.LOCAL.URL: http://security:9091
+      OPENAPI.SERVER.GATEWAY.URL: http://localhost:8765/security
+      OPENAPI.SERVER.LOCAL.URL: http://localhost:9091
 
   thing:
     image: bhrfkhr/things-organizer-thing:1.0.0
@@ -153,8 +155,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://host.docker.internal:1433;databaseName=things-organizer;encrypt=true;trustServerCertificate=true;
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD: fakhr
-      OPENAPI.SERVER.GATEWAY.URL: http://api-gateway:8765/thing
-      OPENAPI.SERVER.LOCAL.URL: http://thing:9091
+      OPENAPI.SERVER.GATEWAY.URL: http://localhost:8765/thing
+      OPENAPI.SERVER.LOCAL.URL: http://localhost:9091
 
   content:
     image: bhrfkhr/things-organizer-content:1.0.0
@@ -183,11 +185,12 @@ services:
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD: fakhr
       SPRING_DATA_MONGODB_URI: mongodb://host.docker.internal:27017/things-organizer
-      OPENAPI.SERVER.GATEWAY.URL: http://api-gateway:8765/content
-      OPENAPI.SERVER.LOCAL.URL: http://content:9091
+      OPENAPI.SERVER.GATEWAY.URL: http://localhost:8765/content
+      OPENAPI.SERVER.LOCAL.URL: http://localhost:9091
 
 networks:
+  thing-organizer-network:
+    external: true
+
   infra-network:
     external: true
-  thing-organizer-network:
-    driver: bridge

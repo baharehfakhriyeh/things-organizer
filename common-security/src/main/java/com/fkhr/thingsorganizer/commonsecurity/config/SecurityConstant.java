@@ -1,5 +1,7 @@
 package com.fkhr.thingsorganizer.commonsecurity.config;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,11 +38,5 @@ public final class SecurityConstant {
             "/users/login",
             "/users/sign-up"
     );
-
-    //todo: define this in config file.
-    public static final String[] ALLOWED_ORIGINS = new String[]{
-            "http://localhost:8765",
-            "http://localhost:4080"
-    };
 
 }
