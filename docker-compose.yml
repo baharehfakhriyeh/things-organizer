@@ -17,10 +17,8 @@ x-common-env: &common-env
   #SPRING_CACHE_REDIS_TIME_TO_LIVE: 60000
   SERVER_SERVLET_SESSION_TIMEOUT: 60m
   SECURITY_AUTHTYPE: keycloak
-#  SECURITY_AUTHSERVER_AUTHORIZATION_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/auth
-#  SECURITY_AUTHSERVER_TOKEN_URL: http://infra_keycloak:4080/realms/thingsorganizerrealm/protocol/openid-connect/token
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://infra_keycloak:8080/realms/thingsorganizerrealm/protocol/openid-connect/certs
-  SECURITY_ALLOWEDORIGINS: http://api-gateway:8765,http://api-gateway:4080,http://localhost:8765,http://localhost:4080,http://infra_keycloak:4080
+  SECURITY_ALLOWEDORIGINS: http://api-gateway:8765,http://api-gateway:4080,http://localhost:8765,http://localhost:4080,http://infra_keycloak:8080
 services:
   config-server:
     image: bhrfkhr/config-server:1.0.0
