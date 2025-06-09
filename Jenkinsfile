@@ -15,12 +15,14 @@ pipeline {
         stage('Build & Test') {
             agent {
                     docker {
-                        // Official Maven image with OpenJDK-17
-                        image 'maven:3.9.6-eclipse-temurin-17'
-                        // Mount Docker socket so we can build & run containers
-                        args  '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-                        reuseNode true
-                    }
+                                image 'maven:3.9.6-eclipse-temurin-17'
+                                args '''
+                                  --privileged
+                                  -v /var/run/docker.sock:/var/run/docker.sock
+                                  -v /c/Users/Asus/.m2:/root/.m2
+                                '''.stripIndent()
+                                reuseNode true
+                            }
             }
             steps {
                 // compile, run unit tests, package to local repo
