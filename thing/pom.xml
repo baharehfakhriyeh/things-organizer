@@ -25,6 +25,10 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fkhr.thingsorganizer</groupId>
             <artifactId>common-security</artifactId>
             <version>1.0.0</version>
