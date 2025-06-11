@@ -62,9 +62,7 @@ pipeline {
                     ]
 
                     modules.each { m ->
-                        dir(m.dir) {
-                            sh "docker build -t ${m.image} ."
-                        }
+                        sh "docker build -f ${m.dir}/Dockerfile -t ${m.image} ."
                     }
                 }
             }
