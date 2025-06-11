@@ -32,16 +32,16 @@ pipeline {
 
         stage('Package (skip tests)') {
             agent {
-                                docker {
-                                            image 'maven:3.9.6-eclipse-temurin-17'
-                                            args '''
-                                              --privileged
-                                              -v /var/run/docker.sock:/var/run/docker.sock
-                                              -v /c/Users/Asus/.m2:/root/.m2
-                                            '''.stripIndent()
-                                            reuseNode true
-                                        }
-                        }
+                    docker {
+                                image 'maven:3.9.6-eclipse-temurin-17'
+                                args '''
+                                  --privileged
+                                  -v /var/run/docker.sock:/var/run/docker.sock
+                                  -v /c/Users/Asus/.m2:/root/.m2
+                                '''.stripIndent()
+                                reuseNode true
+                            }
+            }
             steps {
                 // produce jars without re-running tests
                 sh 'mvn package -DskipTests'
@@ -49,6 +49,17 @@ pipeline {
         }
 
         stage('Build Docker Images') {
+            agent {
+                    docker {
+                                image 'maven:3.9.6-eclipse-temurin-17'
+                                args '''
+                                  --privileged
+                                  -v /var/run/docker.sock:/var/run/docker.sock
+                                  -v /c/Users/Asus/.m2:/root/.m2
+                                '''.stripIndent()
+                                reuseNode true
+                            }
+            }
             steps {
                 script {
                     // list of directories and target image tags
