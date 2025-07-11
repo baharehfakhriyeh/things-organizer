@@ -1,108 +1,92 @@
-package com.fkhr.thingsorganizer.thing.controller;
+package com.fkhr.thingsorganizer.thing.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
-import com.fkhr.thingsorganizer.common.exeptionhandling.RestExceptionHandler;
-import com.fkhr.thingsorganizer.commonsecurity.service.UserServiceImpl;
+import com.fkhr.thingsorganizer.thing.config.TestSecurityConfig;
 import com.fkhr.thingsorganizer.thing.dto.ContainerIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateDto;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
-import com.fkhr.thingsorganizer.thing.service.ThingService;
+import com.fkhr.thingsorganizer.thing.repository.ContainerRepository;
+import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.modelmapper.ModelMapper;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockPageContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.result.StatusResultMatchers;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@WebMvcTest(controllers = ThingController.class)
-@AutoConfigureMockMvc(addFilters = false)
-@Import(RestExceptionHandler.class)
-class ThingControllerTest {
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Import(TestSecurityConfig.class)
+public class ThingControllerITest {
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
-    private ThingService thingService;
+    @Autowired
+    private ThingRepository thingRepository;
+    @Autowired
+    private ContainerRepository containerRepository;
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockBean
-    private ModelMapper modelMapper;
-
     private Thing thing;
+    private Container container;
 
     @BeforeEach
     public void setup(){
-        thing = new Thing(
-                1L,
+        thingRepository.deleteAll();
+        containerRepository.deleteAll();
+        container = new Container(
+                "red bag",
+                null
+        );
+        containerRepository.save(container);
+        thing = new Thing(null,
                 "pen",
-                5L,
-                new Container(
-                        1L,
-                        "red bag",
-                        null
-                )
+                5l,
+                container
         );
     }
-//todo: write negative test scenarios
+
+    @AfterAll
+    public void afterAll() {
+        thingRepository.deleteAll();
+        containerRepository.deleteAll();
+    }
+
     @Test
     public void givenThingCreateDto_whenCreateThing_thenReturnSavedThing() throws Exception {
         ThingCreateDto thingCreateDto = new ThingCreateDto(
                 "pen",
                 5L,
                 new ContainerIdDto(
-                        1L
+                        container.getId()
                 )
         );
-        Thing mappedThing = new Thing(
-                null,
-                "pen",
-                5L,
-                new Container(
-                        1L,
-                        null,
-                        null
-                )
-        );
-
-        BDDMockito.given(modelMapper.map(ArgumentMatchers.any(ThingCreateDto.class), ArgumentMatchers.eq(Thing.class)))
-                .willReturn(mappedThing);
-
-        BDDMockito.given(thingService.save(ArgumentMatchers.any(Thing.class))).willReturn(thing);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/things")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(thingCreateDto)));
 
         resultActions
-                //.andDo(MockMvcResultHandlers.print())
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is(thing.getId().intValue())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(thing.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.weight", CoreMatchers.is(thing.getWeight().intValue())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.container.id", CoreMatchers.is(thing.getContainer().getId().intValue())));
@@ -110,36 +94,21 @@ class ThingControllerTest {
 
     @Test
     public void givenThingUpdateDto_whenUpdateThing_thenReturnUpdatedThing() throws Exception {
+        thingRepository.save(thing);
         ThingUpdateDto thingUpdateDto = new ThingUpdateDto(
-                1L,
-                "pen",
-                5L,
+                thing.getId(),
+                "pencil",
+                6L,
                 new ContainerIdDto(
-                        1L
+                        container.getId()
                 )
         );
-        Thing mappedThing = new Thing(
-                1L,
-                "pen",
-                5L,
-                new Container(
-                        1L,
-                        null,
-                        null
-                )
-        );
-
-        BDDMockito.given(modelMapper.map(ArgumentMatchers.any(ThingUpdateDto.class), ArgumentMatchers.eq(Thing.class)))
-                .willReturn(mappedThing);
-        BDDMockito.given(thingService.save(ArgumentMatchers.any(Thing.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.put("/things")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(thingUpdateDto)));
 
         resultActions
-                //.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is(thingUpdateDto.getId().intValue())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(thingUpdateDto.getTitle())))
@@ -149,8 +118,8 @@ class ThingControllerTest {
 
     @Test
     void givenThingId_whenDeleteThing_thenReturnNothing() throws Exception {
-        Long thingId = 1L;
-        BDDMockito.willDoNothing().given(thingService).delete(thingId);
+        thingRepository.save(thing);
+        Long thingId = thing.getId();
 
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/things/id/{id}", thingId));
 
@@ -159,8 +128,8 @@ class ThingControllerTest {
 
     @Test
     void givenThingId_whenGetThingById_thenReturnThing() throws Exception {
-        Long thingId = 1L;
-        BDDMockito.given(thingService.load(thingId)).willReturn(thing);
+        thingRepository.save(thing);
+        Long thingId = thing.getId();
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/things/id/{id}", thingId));
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is(thing.getId().intValue())))
@@ -174,7 +143,6 @@ class ThingControllerTest {
     void givenInvalidThingId_whenGetThingById_thenReturnThingNotFoundError() throws Exception {
         Long thingId = 10L;
         CustomExeption customExeption = new CustomExeption(CustomError.THING_NOT_FOUND, HttpStatus.ACCEPTED);
-        BDDMockito.given(thingService.load(thingId)).willThrow(customExeption);
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/things/id/{id}", thingId));
         result.andExpect(MockMvcResultMatchers.status().isAccepted())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code", CoreMatchers.is(customExeption.getCode())))
@@ -184,19 +152,16 @@ class ThingControllerTest {
     @Test
     void givenThingList_whenGetAllThings_thenRetrunThingList() throws Exception {
         Thing thing2 = new Thing(
-                2L,
+                null,
                 "pencil",
                 3L,
-                new Container(
-                        1L,
-                        "red bag",
-                        null
-                )
+                container
         );
+        thingRepository.save(thing);
+        thingRepository.save(thing2);
         List<Thing> thingList = new ArrayList<>();
         thingList.add(thing);
         thingList.add(thing2);
-        BDDMockito.given(thingService.findAll()).willReturn(thingList);
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/things"));
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(thingList.size())));
@@ -214,20 +179,16 @@ class ThingControllerTest {
                 null
         );
         Thing thing2 = new Thing(
-                2L,
+                null,
                 "pencil",
                 3L,
-                new Container(
-                        1L,
-                        "red bag",
-                        null
-                )
+                container
         );
+        thingRepository.save(thing);
+        thingRepository.save(thing2);
         List<Thing> things = new ArrayList<>();
         things.add(thing);
         things.add(thing2);
-        BDDMockito.given(thingService.search(ArgumentMatchers.any(Thing.class),
-                ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())).willReturn(things);
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/things/search")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(thingFilters))
@@ -240,12 +201,16 @@ class ThingControllerTest {
 
     @Test
     void givenThingUpgateContainerIdDto_whenUpdateThingContainerId_thenUpdatedThingCount() throws Exception {
-        ThingUpdateContainerIdDto thingUpdateContainerIdDto = new ThingUpdateContainerIdDto(
-                1L, 2L
+        thingRepository.save(thing);
+        Container container2 = new Container(
+                "red bag",
+                null
         );
-        Integer updatedThingCount = 2;
-        BDDMockito.given(thingService.updateContainer(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong()))
-                .willReturn(updatedThingCount);
+        containerRepository.save(container2);
+        ThingUpdateContainerIdDto thingUpdateContainerIdDto = new ThingUpdateContainerIdDto(
+                container.getId(), container2.getId()
+        );
+        Integer updatedThingCount = 1;
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put("/things/container")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(thingUpdateContainerIdDto)));

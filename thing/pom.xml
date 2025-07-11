@@ -60,7 +60,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <includes>
-                        <include>**/*IT.java</include>
+                        <include>**/*ITest.java</include>
                     </includes>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/target/classes</additionalClasspathElement>

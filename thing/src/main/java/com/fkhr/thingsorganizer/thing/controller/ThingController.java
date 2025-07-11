@@ -3,12 +3,10 @@ package com.fkhr.thingsorganizer.thing.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fkhr.thingsorganizer.thing.dto.ThingCreateDto;
-import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerId;
+import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateDto;
 import com.fkhr.thingsorganizer.thing.model.Thing;
-import com.fkhr.thingsorganizer.thing.proxy.ContentProxy;
 import com.fkhr.thingsorganizer.thing.service.ThingService;
-import com.fkhr.thingsorganizer.common.util.InfoProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,7 +68,7 @@ public class ThingController {
     }
 
     @PutMapping(value="/container", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateThingContainerId(@RequestBody ThingUpdateContainerId data) {
+    public ResponseEntity updateThingContainerId(@RequestBody ThingUpdateContainerIdDto data) {
         Integer result = thingService.updateContainer(data.getOldContainerId(), data.getNewContainerId());
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode updatedCount = objectMapper.createObjectNode();

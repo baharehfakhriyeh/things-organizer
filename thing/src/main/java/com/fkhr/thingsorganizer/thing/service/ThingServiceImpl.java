@@ -3,10 +3,8 @@ package com.fkhr.thingsorganizer.thing.service;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.common.util.EntityType;
-import com.fkhr.thingsorganizer.thing.Enum.CacheLabel;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
-import com.fkhr.thingsorganizer.thing.proxy.ContentProxy;
 import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,14 +26,16 @@ import java.util.Optional;
 public class ThingServiceImpl implements ThingService {
     final private ThingRepository thingRepository;
     final private ContainerService containerService;
-    final private ContentProxy contentProxy;
+    final private RestClient restClient;
+    //final private ContentProxy contentProxy;
     @Autowired
     public ThingServiceImpl(ThingRepository thingRepository,
-                            @Lazy ContainerService containerService,
-                            ContentProxy contentProxy) {
+                            @Lazy ContainerService containerService,/*,
+                            ContentProxy contentProxy*/RestClient.Builder restClientBuilder) {
         this.thingRepository = thingRepository;
         this.containerService = containerService;
-        this.contentProxy = contentProxy;
+        /*this.contentProxy = contentProxy;*/
+        this.restClient = restClientBuilder.build();
     }
 
     @Override
@@ -42,7 +43,6 @@ public class ThingServiceImpl implements ThingService {
         Container container = null;
         if(thing.getContainer() != null && thing.getContainer().getId() != null) {
             container = containerService.load(thing.getContainer().getId());
-
         }
         Thing result = null;
         if(thing.getId() == null){
@@ -73,15 +73,9 @@ public class ThingServiceImpl implements ThingService {
     public void delete(Long id){
         Thing thing = this.load(id);
         if(thing != null) {
-            ResponseEntity deleteContentResponse = contentProxy.deleteContentByOwner(EntityType.THING, id.toString());
-
-            if(deleteContentResponse.getStatusCode().value() == 200 ||
-                    deleteContentResponse.getStatusCode().value() == 204) {
-                thingRepository.delete(thing);
-            }
-            else{
-                throw new CustomExeption(CustomError.THING_DELETE_CONTENT_NOT_DELETED, HttpStatus.ACCEPTED);
-            }
+            thingRepository.delete(thing);
+            // ResponseEntity deleteContentResponse = contentProxy.deleteContentByOwner(EntityType.THING, id.toString());
+            //todo: remove content with sending a message to message broker.
         }
         else
             throw new CustomExeption(CustomError.THING_NOT_FOUND, HttpStatus.ACCEPTED);
@@ -112,11 +106,20 @@ public class ThingServiceImpl implements ThingService {
 
     @Override
     public boolean exists(Long id){
-        Thing thing = load(id);
-        if(thing != null)
-            return true;
-        else
+        try {
+            Thing thing = load(id);
+            if (thing != null)
+                return true;
             return false;
+        }
+        catch (CustomExeption e){
+            if(e.getCode().equals(CustomError.THING_NOT_FOUND.code())){
+                return false;
+            }
+            else{
+                throw e;
+            }
+        }
     }
 
     public List<Thing> search(Thing thingFilters, int page, int size) {

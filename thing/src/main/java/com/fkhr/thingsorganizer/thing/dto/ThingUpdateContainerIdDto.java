@@ -1,10 +1,15 @@
 package com.fkhr.thingsorganizer.thing.dto;
 
-public class ThingUpdateContainerId {
+public class ThingUpdateContainerIdDto {
     Long oldContainerId;
     Long newContainerId;
 
-    public ThingUpdateContainerId() {
+    public ThingUpdateContainerIdDto() {
+    }
+
+    public ThingUpdateContainerIdDto(Long oldContainerId, Long newContainerId) {
+        this.oldContainerId = oldContainerId;
+        this.newContainerId = newContainerId;
     }
 
     public Long getOldContainerId() {

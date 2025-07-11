@@ -9,7 +9,7 @@ public enum CustomError {
     NO_USER_LOGGED_IN(1006, "no-user-logged-in"),
     REQUIRED_FIELD(1010, "required-field"),
     THING_NOT_FOUND(1101, "thing-not-found"),
-    THING_DELETE_CONTENT_NOT_DELETED(1102, "thing-not-deleted-because-contents-not-deleted"),
+    THING_NOT_DELETED_CONTENT_NOT_DELETED(1102, "thing-not-deleted-because-contents-not-deleted"),
     CONTAINER_NOT_FOUND(1201, "container-not-found"),
     PARENT_CONTAINER_NOT_FOUND(1202, "parent-container-not-found"),
     CONTENT_NOT_FOUND(1301, "content-not-found");

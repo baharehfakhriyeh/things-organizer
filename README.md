@@ -30,7 +30,7 @@
 - **Swagger**: For generating API documentation and allowing users to explore the API interactively.
 - **Log4j2**: For generating and archiving logs.
 - **AspectJ**: For cross-cutting concerns such as logging.
-- **JUnit**: For unit testing the application.
+- **JUnit**: For unit tests and integration tests.
 - **Maven**: For project build, dependency management, and version control.
 
 

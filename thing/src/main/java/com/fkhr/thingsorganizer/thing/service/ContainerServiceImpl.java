@@ -19,12 +19,12 @@ import java.util.Optional;
 
 @Service
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-public class ContainerServiceImp implements ContainerService{
+public class ContainerServiceImpl implements ContainerService{
 
     private final ContainerRepository containerRepository;
     private final ThingService thingService;
     @Autowired
-    public ContainerServiceImp(ContainerRepository containerRepository, ThingService thingService) {
+    public ContainerServiceImpl(ContainerRepository containerRepository, ThingService thingService) {
         this.containerRepository = containerRepository;
         this.thingService = thingService;
     }
@@ -101,10 +101,16 @@ public class ContainerServiceImp implements ContainerService{
     }
 
     public boolean exists(Long id){
-        Container container = load(id);
-        if(container != null)
-            return true;
-        else
+        try {
+            Container container = load(id);
+            if (container != null)
+                return true;
             return false;
+        }catch (CustomExeption exeption) {
+            if(exeption.getCode().equals(CustomError.CONTAINER_NOT_FOUND.code()))
+                return false;
+            else
+                throw exeption;
+        }
     }
 }

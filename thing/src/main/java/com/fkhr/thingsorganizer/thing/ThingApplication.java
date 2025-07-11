@@ -14,15 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling
-@EnableAspectJAutoProxy
-@EnableFeignClients(basePackages = "com.fkhr.thingsorganizer")
-@EnableCaching
-@EnableDiscoveryClient
-@ComponentScan(basePackages = {
-        "com.fkhr.thingsorganizer.commonsecurity.service",
-        "com.fkhr.thingsorganizer.thing"})
-@ImportAutoConfiguration({FeignAutoConfiguration.class})
+
+//@ImportAutoConfiguration({FeignAutoConfiguration.class})
 public class ThingApplication {
     public static void main(String[] args) {
         SpringApplication.run(ThingApplication.class, args);
