@@ -1,11 +1,9 @@
 package com.fkhr.thingsorganizer.thing.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.common.exeptionhandling.RestExceptionHandler;
-import com.fkhr.thingsorganizer.commonsecurity.service.UserServiceImpl;
 import com.fkhr.thingsorganizer.thing.dto.ContainerIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerIdDto;
@@ -26,18 +24,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockPageContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.result.StatusResultMatchers;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @WebMvcTest(controllers = ThingController.class)
 @AutoConfigureMockMvc(addFilters = false)
