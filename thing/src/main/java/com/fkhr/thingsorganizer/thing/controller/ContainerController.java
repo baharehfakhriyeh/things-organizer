@@ -1,9 +1,13 @@
 package com.fkhr.thingsorganizer.thing.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fkhr.thingsorganizer.thing.dto.ContainerCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateDto;
+import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateLocationDto;
+import com.fkhr.thingsorganizer.thing.dto.LocationIdDto;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.service.ContainerService;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/containers", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,6 +67,11 @@ public class ContainerController {
                                           @RequestParam(defaultValue = "10") int size) {
         List<Container> containerList = containerService.search(container, page, size);
         return new ResponseEntity(containerList, HttpStatus.OK);
+    }
+    @PutMapping("/location")
+    public ResponseEntity updateLocation(@RequestBody ContainerUpdateLocationDto containerUpdateLocationDto) throws InvalidProtocolBufferException, JsonProcessingException {
+        UUID locationId = containerService.updateLocation(containerUpdateLocationDto.getContainerId(), containerUpdateLocationDto.getGeometry());
+        return new ResponseEntity(new LocationIdDto(locationId), HttpStatus.OK);
     }
 
 

@@ -1,10 +1,19 @@
 package com.fkhr.thingsorganizer.thing.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fkhr.gisapi.Geometry;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
+import com.fkhr.thingsorganizer.common.util.EntityType;
+import com.fkhr.thingsorganizer.thing.dto.GeometryDto;
+import com.fkhr.thingsorganizer.thing.dto.LocationPropertiesDto;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.repository.ContainerRepository;
-
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Struct;
+import com.google.protobuf.util.JsonFormat;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,13 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-public class ContainerServiceImpl implements ContainerService{
+public class ContainerServiceImpl implements ContainerService {
 
     private final ContainerRepository containerRepository;
     private final ThingService thingService;
+    @GrpcClient("featureService")
+    private com.fkhr.gisapi.FeatureServiceGrpc.FeatureServiceBlockingStub featureServiceBlockingStub;
+
     @Autowired
     public ContainerServiceImpl(ContainerRepository containerRepository, ThingService thingService) {
         this.containerRepository = containerRepository;
@@ -32,14 +45,13 @@ public class ContainerServiceImpl implements ContainerService{
     @Override
     public Container save(Container container) {
         Container parentContainer = null;
-        if(container.getParent() != null && container.getParent().getId() != null) {
+        if (container.getParent() != null && container.getParent().getId() != null) {
             parentContainer = loadParent(container.getParent().getId());
         }
         Container result = null;
-        if(container.getId() == null){
+        if (container.getId() == null) {
             result = containerRepository.save(container);
-        }
-        else {
+        } else {
             if (!exists(container.getId())) {
                 throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
             } else {
@@ -53,61 +65,93 @@ public class ContainerServiceImpl implements ContainerService{
     }
 
     @Override
-    public void delete(Long id){
+    public void delete(Long id) {
         Container container = load(id);
-        if(container == null){
+        if (container == null) {
             throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
-        }
-        else{
+        } else {
             thingService.updateContainer(container.getId(), null);
             containerRepository.delete(container);
         }
     }
 
     @Override
-    public Container load(Long id){
+    public Container load(Long id) {
         Optional<Container> result = containerRepository.findById(id);
-        if(result.equals(Optional.empty())) {
+        if (result.equals(Optional.empty())) {
             throw new CustomExeption(CustomError.CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
-        }
-        else {
+        } else {
             return result.get();
         }
     }
 
-    private Container loadParent(Long parentId){
+    private Container loadParent(Long parentId) {
         Container result = containerRepository.findById(parentId).get();
-        if(result == null){
-            throw new  CustomExeption(CustomError.PARENT_CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
-        }
-        else{
+        if (result == null) {
+            throw new CustomExeption(CustomError.PARENT_CONTAINER_NOT_FOUND, HttpStatus.ACCEPTED);
+        } else {
             return result;
         }
     }
 
     @Override
-    public List<Container> findAll(){
+    public List<Container> findAll() {
         return containerRepository.findAll();
     }
 
     @Override
-    public List<Container> findAll(int page, int size){
+    public List<Container> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return containerRepository.findAll(pageable).toList();
     }
 
-    public List<Container> search(Container container, int page, int size){
+    public List<Container> search(Container container, int page, int size) {
         return null;
     }
 
-    public boolean exists(Long id){
+    @Override
+    public UUID updateLocation(long containerId, GeometryDto geometry) throws JsonProcessingException, InvalidProtocolBufferException {
+        Container container = load(containerId);
+        Geometry geometryObj = convertGeometryDtoToProtoGeometry(geometry);
+        LocationPropertiesDto locationPropertiesDto = new LocationPropertiesDto(containerId, EntityType.CONTAINER);
+        Struct properties = convertPropertiesDtoToProtoStruct(locationPropertiesDto);
+        com.fkhr.gisapi.CreateFeatureRequestDto request = com.fkhr.gisapi.CreateFeatureRequestDto.newBuilder()
+                .setOwner(EntityType.CONTAINER + "-" + containerId)
+                .setDescription(container.getTitle())
+                .setGeometry(geometryObj)
+                .setProperties(properties)
+                .build();
+        com.fkhr.gisapi.FeatureResponseDto featureResponseDto = featureServiceBlockingStub.createFeature(request);
+        UUID locationId = UUID.fromString(featureResponseDto.getId());
+        return locationId;
+    }
+
+    private static Struct convertPropertiesDtoToProtoStruct(LocationPropertiesDto locationPropertiesDto) throws JsonProcessingException, InvalidProtocolBufferException {
+        ObjectMapper mapper = new ObjectMapper();
+        String propertiesJson = mapper.writeValueAsString(locationPropertiesDto);
+        Struct.Builder propertiesBuilder = Struct.newBuilder();
+        JsonFormat.parser().merge(propertiesJson, propertiesBuilder);
+        Struct properties = propertiesBuilder.build();
+        return properties;
+    }
+
+    private static Geometry convertGeometryDtoToProtoGeometry(GeometryDto geometry) throws InvalidProtocolBufferException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String geometryJson = mapper.writeValueAsString(geometry);
+        Geometry.Builder geometryBuilder = Geometry.newBuilder();
+        JsonFormat.parser().ignoringUnknownFields().merge(geometryJson, geometryBuilder);
+        Geometry geometryObj = geometryBuilder.build();
+        return geometryObj;
+    }
+
+    public boolean exists(Long id) {
         try {
             Container container = load(id);
             if (container != null)
                 return true;
             return false;
-        }catch (CustomExeption exeption) {
-            if(exeption.getCode().equals(CustomError.CONTAINER_NOT_FOUND.code()))
+        } catch (CustomExeption exeption) {
+            if (exeption.getCode().equals(CustomError.CONTAINER_NOT_FOUND.code()))
                 return false;
             else
                 throw exeption;

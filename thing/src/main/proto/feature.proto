@@ -1,0 +1,87 @@
+syntax = "proto3";
+import "google/protobuf/struct.proto";
+option java_multiple_files = true;
+option java_package = "com.fkhr.gisapi";
+option java_outer_classname = "FeatureProto";
+
+package com.fkhr.gisapi;
+
+service FeatureService{
+  rpc ConvertToGeoJson(FeatureRequestDto) returns (GeoJson){}
+  rpc CreateFeature(CreateFeatureRequestDto) returns (FeatureResponseDto);
+  rpc GetFeature(FeatureId) returns(FeatureResponseDto);
+  rpc GetFeaturesInArea(GetFeaturesInAreaRequestDto) returns (stream FeatureResponseDto);
+  rpc ImportFeatures(stream FeatureRequestDto) returns (ImportFeaturesResponseDto);
+  rpc LiveProximitySearch(stream Geometry) returns (stream FeatureResponseDto);
+}
+
+/*message Point{
+  double longtitude = 1;
+  double latitude = 2;
+}
+
+message Polygon{
+  repeated Point vertices = 1;
+}
+
+message Geometry{
+  oneof geometry{
+    Point point = 1;
+    Polygon polygon = 2;
+  }
+}*/
+
+message Geometry {
+  string type = 1; // Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
+
+  // For Point:        [x, y]
+  // For MultiPoint:   [[x, y], [x, y]]
+  // For LineString:   [[x, y], [x, y]]
+  // For Polygon:      [[[x, y], [x, y], [x, y]]] outer ring
+  // For MultiPolygon: [[[[x, y]]], [[[x, y]]]]
+  google.protobuf.ListValue coordinates = 2;
+}
+
+message FeatureRequestDto{
+  string id = 1;
+  string owner = 2;
+  string description = 3;
+  Geometry geometry = 4;
+  google.protobuf.Struct properties = 5;
+
+}
+
+message FeatureResponseDto{
+  string id = 1;
+  string owner = 2;
+  string description = 3;
+  Geometry geometry = 4;
+  string timestamp = 5;
+  google.protobuf.Struct properties = 6;
+}
+
+message CreateFeatureRequestDto{
+  string owner = 1;
+  string description = 2;
+  Geometry geometry = 3;
+  google.protobuf.Struct properties = 4;
+}
+
+message FeatureId{
+  string id = 1;
+}
+
+message GeoJson{
+  string json = 1;
+}
+
+message GetFeaturesInAreaRequestDto{
+  Geometry geometry = 1;
+}
+
+message ImportFeaturesResponseDto{
+  int32 count = 1;
+}
+
+
+

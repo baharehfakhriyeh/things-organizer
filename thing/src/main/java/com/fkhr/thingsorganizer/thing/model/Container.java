@@ -3,6 +3,7 @@ package com.fkhr.thingsorganizer.thing.model;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 public class Container implements Serializable {
@@ -12,11 +13,7 @@ public class Container implements Serializable {
     String title;
     @ManyToOne
     Container parent;
-   /* @OneToMany(mappedBy = "container")
-    List<Thing> things;
-    @OneToMany(mappedBy = "parent")
-    List<Container> containers;
-*/
+
     public Container(Long id, String title, Container parent) {
         this.id = id;
         this.title = title;
@@ -55,19 +52,4 @@ public class Container implements Serializable {
         this.parent = parent;
     }
 
- /*   public List<Thing> getThings() {
-        return things;
-    }
-
-    public void setThings(List<Thing> things) {
-        this.things = things;
-    }
-
-    public List<Container> getContainers() {
-        return containers;
-    }
-
-    public void setContainers(List<Container> containers) {
-        this.containers = containers;
-    }*/
 }

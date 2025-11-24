@@ -3,7 +3,6 @@ package com.fkhr.thingsorganizer.thing.repository;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
 import org.assertj.core.api.Assertions;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ class ThingRepositoryTest {
     private Pageable pageable;
 
     @BeforeEach
-    private void setUp() {
+    public void setUp() {
         container = new Container(
                 "red bag",
                 null
@@ -55,7 +54,7 @@ class ThingRepositoryTest {
         private Container subContainer;
         private Thing thing2;
         @BeforeEach
-        private void setup(){
+        public void setup(){
             subContainer = new Container(
                     "yellow bag",
                     container
