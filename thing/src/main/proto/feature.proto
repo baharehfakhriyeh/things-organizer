@@ -10,26 +10,12 @@ service FeatureService{
   rpc ConvertToGeoJson(FeatureRequestDto) returns (GeoJson){}
   rpc CreateFeature(CreateFeatureRequestDto) returns (FeatureResponseDto);
   rpc GetFeature(FeatureId) returns(FeatureResponseDto);
+  rpc GetFeatureLocationStream(GetFeatureLocationStreamRequestDto) returns (stream FeatureResponseDto);
+  rpc GetFeatureLocationHistoryStream(GetFeatureLocationStreamRequestDto) returns (stream FeatureResponseDto);
   rpc GetFeaturesInArea(GetFeaturesInAreaRequestDto) returns (stream FeatureResponseDto);
   rpc ImportFeatures(stream FeatureRequestDto) returns (ImportFeaturesResponseDto);
   rpc LiveProximitySearch(stream Geometry) returns (stream FeatureResponseDto);
 }
-
-/*message Point{
-  double longtitude = 1;
-  double latitude = 2;
-}
-
-message Polygon{
-  repeated Point vertices = 1;
-}
-
-message Geometry{
-  oneof geometry{
-    Point point = 1;
-    Polygon polygon = 2;
-  }
-}*/
 
 message Geometry {
   string type = 1; // Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
@@ -48,7 +34,6 @@ message FeatureRequestDto{
   string description = 3;
   Geometry geometry = 4;
   google.protobuf.Struct properties = 5;
-
 }
 
 message FeatureResponseDto{
@@ -69,6 +54,10 @@ message CreateFeatureRequestDto{
 
 message FeatureId{
   string id = 1;
+}
+
+message GetFeatureLocationStreamRequestDto{
+  string owner = 1;
 }
 
 message GeoJson{

@@ -1,6 +1,7 @@
 package com.fkhr.thingsorganizer.thing.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fkhr.gisapi.GetFeatureLocationStreamRequestDto;
 import com.fkhr.thingsorganizer.thing.dto.ContainerCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateDto;
 import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateLocationDto;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +75,18 @@ public class ContainerController {
         UUID locationId = containerService.updateLocation(containerUpdateLocationDto.getContainerId(), containerUpdateLocationDto.getGeometry());
         return new ResponseEntity(new LocationIdDto(locationId), HttpStatus.OK);
     }
+
+    @GetMapping(value ="/container/{id}/location-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter getContainerLocationStream(@PathVariable("id") Long id){
+        return containerService.getContainerLocationStream(id);
+    }
+
+    @GetMapping(value="/container/{id}/history-location-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter getContainerHistoryLocationStream(@PathVariable("id") Long id){
+        return containerService.getContainerLocationHistoryStream(id);
+    }
+
+
 
 
 }

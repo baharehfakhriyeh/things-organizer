@@ -2,7 +2,7 @@ package com.fkhr.thingsorganizer.thing.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fkhr.gisapi.Geometry;
+import com.fkhr.gisapi.*;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.common.util.EntityType;
@@ -13,7 +13,9 @@ import com.fkhr.thingsorganizer.thing.repository.ContainerRepository;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Struct;
 import com.google.protobuf.util.JsonFormat;
+import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.apache.tomcat.util.threads.VirtualThreadExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -34,7 +40,9 @@ public class ContainerServiceImpl implements ContainerService {
     private final ContainerRepository containerRepository;
     private final ThingService thingService;
     @GrpcClient("featureService")
-    private com.fkhr.gisapi.FeatureServiceGrpc.FeatureServiceBlockingStub featureServiceBlockingStub;
+    private FeatureServiceGrpc.FeatureServiceBlockingStub featureServiceBlockingStub;
+    @GrpcClient("featureService")
+    private FeatureServiceGrpc.FeatureServiceStub featureServiceStub;
 
     @Autowired
     public ContainerServiceImpl(ContainerRepository containerRepository, ThingService thingService) {
@@ -115,15 +123,83 @@ public class ContainerServiceImpl implements ContainerService {
         Geometry geometryObj = convertGeometryDtoToProtoGeometry(geometry);
         LocationPropertiesDto locationPropertiesDto = new LocationPropertiesDto(containerId, EntityType.CONTAINER);
         Struct properties = convertPropertiesDtoToProtoStruct(locationPropertiesDto);
-        com.fkhr.gisapi.CreateFeatureRequestDto request = com.fkhr.gisapi.CreateFeatureRequestDto.newBuilder()
-                .setOwner(EntityType.CONTAINER + "-" + containerId)
+        CreateFeatureRequestDto request = CreateFeatureRequestDto.newBuilder()
+                .setOwner(getContainerAsOwner(containerId))
                 .setDescription(container.getTitle())
                 .setGeometry(geometryObj)
                 .setProperties(properties)
                 .build();
-        com.fkhr.gisapi.FeatureResponseDto featureResponseDto = featureServiceBlockingStub.createFeature(request);
+        FeatureResponseDto featureResponseDto = featureServiceBlockingStub.createFeature(request);
         UUID locationId = UUID.fromString(featureResponseDto.getId());
         return locationId;
+    }
+
+    @Override
+    public SseEmitter getContainerLocationStream(long containerId) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        SseEmitter sseEmitter = new SseEmitter();
+        GetFeatureLocationStreamRequestDto requestDto = GetFeatureLocationStreamRequestDto.newBuilder()
+                .setOwner(getContainerAsOwner(containerId)).build();
+        executorService.submit(() -> {
+            featureServiceStub.getFeatureLocationStream(requestDto, new StreamObserver<FeatureResponseDto>() {
+                @Override
+                public void onNext(FeatureResponseDto featureResponseDto) {
+                    try {
+                        String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
+                        sseEmitter.send(SseEmitter.event().data(featureResponseJson));
+                    } catch (Exception e) {
+                        sseEmitter.completeWithError(e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    sseEmitter.completeWithError(throwable);
+                }
+
+                @Override
+                public void onCompleted() {
+                    sseEmitter.complete();
+                }
+            });
+        });
+        return sseEmitter;
+    }
+
+    @Override
+    public SseEmitter getContainerLocationHistoryStream(long containerId) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        SseEmitter sseEmitter = new SseEmitter();
+        GetFeatureLocationStreamRequestDto requestDto = GetFeatureLocationStreamRequestDto.newBuilder()
+                .setOwner(getContainerAsOwner(containerId)).build();
+        executorService.submit(() -> {
+            featureServiceStub.getFeatureLocationHistoryStream(requestDto, new StreamObserver<FeatureResponseDto>() {
+                @Override
+                public void onNext(FeatureResponseDto featureResponseDto) {
+                    try {
+                        String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
+                        sseEmitter.send(SseEmitter.event().data(featureResponseJson));
+                    } catch (Exception e) {
+                        sseEmitter.completeWithError(e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    sseEmitter.completeWithError(throwable);
+                }
+
+                @Override
+                public void onCompleted() {
+                    sseEmitter.complete();
+                }
+            });
+        });
+        return sseEmitter;
+    }
+
+    private String getContainerAsOwner(Long containerId){
+        return EntityType.CONTAINER + "-" + containerId;
     }
 
     private static Struct convertPropertiesDtoToProtoStruct(LocationPropertiesDto locationPropertiesDto) throws JsonProcessingException, InvalidProtocolBufferException {
