@@ -27,8 +27,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: config-server/Dockerfile
+      context: ..
+      dockerfile: ../config-server/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
@@ -47,8 +47,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: naming-server/Dockerfile
+      context: ..
+      dockerfile: ../naming-server/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
@@ -69,8 +69,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: api-gateway/Dockerfile
+      context: ..
+      dockerfile: ../api-gateway/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
@@ -105,8 +105,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: security/Dockerfile
+      context: ..
+      dockerfile: ../security/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
@@ -134,8 +134,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: thing/Dockerfile
+      context: ..
+      dockerfile: ../thing/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
@@ -163,8 +163,8 @@ services:
         limits:
           memory: 700m
     build:
-      context: .
-      dockerfile: content/Dockerfile
+      context: ..
+      dockerfile: ../content/Dockerfile
     volumes:
       - ~/.m2:/root/.m2
     ports:
