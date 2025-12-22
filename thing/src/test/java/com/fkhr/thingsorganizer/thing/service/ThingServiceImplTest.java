@@ -5,6 +5,7 @@ import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
 import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
+import com.fkhr.thingsorganizer.thing.util.MonitoringMetrics;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,8 @@ class ThingServiceImplTest {
     private RestClient restClient;
     @Mock
     private RestClient.Builder restClientBuilder;
+    @Mock
+    private MonitoringMetrics metrics;
     private Thing thing;
     private Container container;
 
@@ -44,7 +47,7 @@ class ThingServiceImplTest {
         restClientBuilder = Mockito.mock(RestClient.Builder.class, Mockito.RETURNS_DEEP_STUBS);
         restClient = Mockito.mock(RestClient.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(restClientBuilder.build()).thenReturn(restClient);
-        thingService = new ThingServiceImpl(thingRepository, containerService, restClientBuilder);
+        thingService = new ThingServiceImpl(thingRepository, containerService, restClientBuilder, metrics);
         thingService = Mockito.spy(thingService);
 
         container = new Container(

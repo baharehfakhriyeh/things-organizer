@@ -25,7 +25,8 @@ public final class SecurityConstant {
             "/content/api-docs",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/users/sign-up"
+            "/users/sign-up",
+            "/actuator/prometheus"
     );
 
     public static final List<String> JWT_IGNORE_VALIDATION_URIS = Arrays.asList(
@@ -36,7 +37,8 @@ public final class SecurityConstant {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/users/login",
-            "/users/sign-up"
+            "/users/sign-up",
+            "/actuator/prometheus"
     );
 
 }

@@ -6,6 +6,7 @@ import com.fkhr.thingsorganizer.common.util.EntityType;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.model.Thing;
 import com.fkhr.thingsorganizer.thing.repository.ThingRepository;
+import com.fkhr.thingsorganizer.thing.util.MonitoringMetrics;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,15 +28,17 @@ public class ThingServiceImpl implements ThingService {
     final private ThingRepository thingRepository;
     final private ContainerService containerService;
     final private RestClient restClient;
+    final private MonitoringMetrics metrics;
     //final private ContentProxy contentProxy;
     @Autowired
     public ThingServiceImpl(ThingRepository thingRepository,
                             @Lazy ContainerService containerService,/*,
-                            ContentProxy contentProxy*/RestClient.Builder restClientBuilder) {
+                            ContentProxy contentProxy*/RestClient.Builder restClientBuilder, MonitoringMetrics metrics) {
         this.thingRepository = thingRepository;
         this.containerService = containerService;
         /*this.contentProxy = contentProxy;*/
         this.restClient = restClientBuilder.build();
+        this.metrics = metrics;
     }
 
     @Override
@@ -60,6 +63,7 @@ public class ThingServiceImpl implements ThingService {
         if(result != null && container != null){
             result.setContainer(container);
         }
+        metrics.incrementThingsCreated();
         return result;
     }
 
