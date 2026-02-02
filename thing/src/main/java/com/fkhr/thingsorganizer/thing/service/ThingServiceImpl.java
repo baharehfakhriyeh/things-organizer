@@ -134,6 +134,12 @@ public class ThingServiceImpl implements ThingService {
                 thingFilters.getContainer() != null ? thingFilters.getContainer().getTitle() : null, pageable);
         return things;
     }
+
+    @Override
+    public List<Thing> getByContainerId(Long containerId) {
+        return thingRepository.getThingsByContainerId(containerId);
+    }
+
     @Transactional
     @Caching(
             evict = {@CacheEvict(cacheNames = "com.fkhr.thingsorganizer.thing.model.thing", allEntries = true),

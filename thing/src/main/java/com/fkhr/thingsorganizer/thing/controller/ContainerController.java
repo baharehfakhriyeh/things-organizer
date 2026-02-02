@@ -2,10 +2,7 @@ package com.fkhr.thingsorganizer.thing.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fkhr.gisapi.GetFeatureLocationStreamRequestDto;
-import com.fkhr.thingsorganizer.thing.dto.ContainerCreateDto;
-import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateDto;
-import com.fkhr.thingsorganizer.thing.dto.ContainerUpdateLocationDto;
-import com.fkhr.thingsorganizer.thing.dto.LocationIdDto;
+import com.fkhr.thingsorganizer.thing.dto.*;
 import com.fkhr.thingsorganizer.thing.model.Container;
 import com.fkhr.thingsorganizer.thing.service.ContainerService;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -57,6 +54,12 @@ public class ContainerController {
         return new ResponseEntity(container, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/parent-id", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getContainersByParentId(@RequestBody NullableIdDto filter) {
+        List<Container> containers = containerService.getByParentId(filter.getId());
+        return new ResponseEntity(containers, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity getAllContainers() {
         List<Container> containerList = containerService.findAll();
@@ -70,10 +73,32 @@ public class ContainerController {
         List<Container> containerList = containerService.search(container, page, size);
         return new ResponseEntity(containerList, HttpStatus.OK);
     }
-    @PutMapping("/location")
+    @PutMapping(value="/location", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateLocation(@RequestBody ContainerUpdateLocationDto containerUpdateLocationDto) throws InvalidProtocolBufferException, JsonProcessingException {
         UUID locationId = containerService.updateLocation(containerUpdateLocationDto.getContainerId(), containerUpdateLocationDto.getGeometry());
         return new ResponseEntity(new LocationIdDto(locationId), HttpStatus.OK);
+    }
+
+    @GetMapping("/container/{id}/location")
+    public ResponseEntity getContainerLocation(@PathVariable("id") long containerId){
+        ContainerLocationDto result = containerService.getContainerLocation(containerId);
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+    /*
+    * Better to use the websocket implementation in GetContainersInAreaWebsocketHandler
+    * */
+    @Deprecated
+    @PostMapping(value ="/area/location-stream", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter getContainersInAreaStream(@RequestBody GeometryDto geometryDto) throws Exception {
+        return containerService.getContainersInAreaStream(geometryDto);
+    }
+
+    @PostMapping(value = "/parent-id/location-stream", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getContainersLocationByParentId(@RequestBody NullableIdDto filter) {
+        List<ContainerLocationDto> locations = containerService.getContainersLocationStreamByParentId(filter.getId());
+        return new ResponseEntity(locations, HttpStatus.OK);
     }
 
     @GetMapping(value ="/container/{id}/location-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -85,8 +110,4 @@ public class ContainerController {
     public SseEmitter getContainerHistoryLocationStream(@PathVariable("id") Long id){
         return containerService.getContainerLocationHistoryStream(id);
     }
-
-
-
-
 }

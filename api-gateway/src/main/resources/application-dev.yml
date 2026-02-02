@@ -1,0 +1,79 @@
+server:
+  port: 8765
+
+spring:
+  cloud:
+    gateway:
+      httpserver:
+        max-header-size: 65536
+      httpclient:
+        max-header-size: 65536
+      routes:
+        - id: security-route
+          uri: http://localhost:8765/security
+          predicates:
+            - Path=/security/api-docs
+            - Method=GET
+        - id: thing-route
+          uri: http://localhost:8765/thing
+          predicates:
+            - Path=/thing/api-docs
+            - Method=GET
+        - id: content-route
+          uri: http://localhost:8765/content
+          predicates:
+            - Path=/content/api-docs
+            - Method=GET
+        - id: ws-containers-in-area-stream
+          uri: ws://localhost:9091
+          predicates:
+            - Path=/ws/thing/containers/area/location-stream
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RemoveRequestHeader=Forwarded
+            - PreserveHostHeader
+        - id: ws-containers-location-by-parent-stream
+          uri: ws://localhost:9091
+          predicates:
+            - Path=/ws/thing/containers/parent-id/location-stream
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RemoveRequestHeader=Forwarded
+            - PreserveHostHeader
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - http://localhost:5173
+              - http://localhost:8086
+              - http://localhost:8765
+              - http://localhost:4080
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+springdoc:
+  swagger-ui:
+    tryItOutEnabled: true
+    display-request-duration: true
+    enabled: true
+    path: /docs.html
+    config-url: /api-docs/swagger-config
+    urls:
+      - url: /api-docs
+        name: API Gateway Service
+      - url: /security/security/api-docs
+        name: Security service
+      - url: /thing/thing/api-docs
+        name: Thing Service
+      - url: /content/content/api-docs
+        name: Content Service
+  api-docs:
+    enabled: true
+    path: /api-docs

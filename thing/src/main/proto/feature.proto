@@ -9,7 +9,8 @@ package com.fkhr.gisapi;
 service FeatureService{
   rpc ConvertToGeoJson(FeatureRequestDto) returns (GeoJson){}
   rpc CreateFeature(CreateFeatureRequestDto) returns (FeatureResponseDto);
-  rpc GetFeature(FeatureId) returns(FeatureResponseDto);
+  rpc GetFeature(FeatureId) returns (FeatureResponseDto);
+  rpc GetFeatureByOwner(GetFeatureByOwnerRequestDto) returns (FeatureResponseDto);
   rpc GetFeatureLocationStream(GetFeatureLocationStreamRequestDto) returns (stream FeatureResponseDto);
   rpc GetFeatureLocationHistoryStream(GetFeatureLocationStreamRequestDto) returns (stream FeatureResponseDto);
   rpc GetFeaturesInArea(GetFeaturesInAreaRequestDto) returns (stream FeatureResponseDto);
@@ -54,6 +55,14 @@ message CreateFeatureRequestDto{
 
 message FeatureId{
   string id = 1;
+}
+
+message GetFeatureByOwnerRequestDto{
+  string owner = 1;
+}
+
+message GetFeaturesByOwnerRequestDto{
+  string owner = 1;
 }
 
 message GetFeatureLocationStreamRequestDto{

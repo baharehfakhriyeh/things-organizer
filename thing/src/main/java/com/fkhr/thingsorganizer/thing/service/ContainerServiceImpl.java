@@ -6,6 +6,8 @@ import com.fkhr.gisapi.*;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomError;
 import com.fkhr.thingsorganizer.common.exeptionhandling.CustomExeption;
 import com.fkhr.thingsorganizer.common.util.EntityType;
+import com.fkhr.thingsorganizer.thing.controller.ws.BaseWebsocketHandler;
+import com.fkhr.thingsorganizer.thing.dto.ContainerLocationDto;
 import com.fkhr.thingsorganizer.thing.dto.GeometryDto;
 import com.fkhr.thingsorganizer.thing.dto.LocationPropertiesDto;
 import com.fkhr.thingsorganizer.thing.model.Container;
@@ -15,7 +17,6 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.util.JsonFormat;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.apache.tomcat.util.threads.VirtualThreadExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +26,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -118,6 +119,11 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     @Override
+    public List<Container> getByParentId(Long parentId) {
+        return containerRepository.getContainersByParentId(parentId);
+    }
+
+    @Override
     public UUID updateLocation(long containerId, GeometryDto geometry) throws JsonProcessingException, InvalidProtocolBufferException {
         Container container = load(containerId);
         Geometry geometryObj = convertGeometryDtoToProtoGeometry(geometry);
@@ -135,33 +141,110 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     @Override
+    public ContainerLocationDto getContainerLocation(long containerId) {
+        String owner = getContainerAsOwner(containerId);
+        GetFeatureByOwnerRequestDto requestDto = GetFeatureByOwnerRequestDto.newBuilder().setOwner(owner).build();
+        FeatureResponseDto featureResponseDto = featureServiceBlockingStub.getFeatureByOwner(requestDto);
+        ContainerLocationDto containerLocationDto = mapToContainerLocationDto(featureResponseDto);
+        return containerLocationDto;
+    }
+
+    @Override
+    public SseEmitter getContainersInAreaStream(GeometryDto geometryDto) throws InvalidProtocolBufferException, JsonProcessingException {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        SseEmitter sseEmitter = new SseEmitter();
+        GetFeaturesInAreaRequestDto requestDto = GetFeaturesInAreaRequestDto.newBuilder()
+                .setGeometry(convertGeometryDtoToProtoGeometry(geometryDto)).build();
+        executorService.submit(()->{
+            featureServiceStub.getFeaturesInArea(requestDto, getFeatureSseEmitterResponseObserver(sseEmitter));
+        });
+        return sseEmitter;
+    }
+
+    @Override
+    public void getContainersInAreaStream(GeometryDto geometryDto, WebSocketSession session,
+                                          BaseWebsocketHandler.SessionState state) {
+        try {
+            GetFeaturesInAreaRequestDto requestDto = GetFeaturesInAreaRequestDto.newBuilder()
+                    .setGeometry(convertGeometryDtoToProtoGeometry(geometryDto))
+                    .build();
+
+            StreamObserver<FeatureResponseDto> observer = new StreamObserver<>() {
+                @Override
+                public void onNext(FeatureResponseDto featureResponseDto) {
+                    if (!session.isOpen()) return;
+                    try {
+                        String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
+                        session.sendMessage(new TextMessage(featureResponseJson));
+                    } catch (Exception e) {
+                        onError(e);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    closeWsSession(session, t);
+                }
+
+                @Override
+                public void onCompleted() {
+                    closeWsSession(session, null);
+                }
+            };
+
+            featureServiceStub.getFeaturesInArea(requestDto, observer);
+
+        } catch (Exception e) {
+            closeWsSession(session, e);
+        }
+    }
+
+    @Override
+    public List<ContainerLocationDto> getContainersLocationStreamByParentId(Long parentId) {
+        if(parentId == null){
+            //todo: say parentId is required
+        }
+        List<Container> containers = containerRepository.getContainersByParentId(parentId);
+        List<ContainerLocationDto> containerLocations = new ArrayList<>();
+        if(!containers.isEmpty()) {
+            for (Container container : containers) {
+                ContainerLocationDto location = getContainerLocation(container.getId());
+                containerLocations.add(location);
+            }
+            return containerLocations;
+        }
+        return containerLocations;
+    }
+
+    @Override
+    public void getContainersLocationStreamByParentId(Long parentId, WebSocketSession session, BaseWebsocketHandler.SessionState state) {
+        if(parentId == null){
+            //todo: say parentId is required
+        }
+        List<Container> containers = containerRepository.getContainersByParentId(parentId);
+        if(!containers.isEmpty()) {
+            for (Container container : containers) {
+                ContainerLocationDto location = getContainerLocation(container.getId());
+                if (!session.isOpen()) return;
+                try {
+                    String featureResponseJson = location.toString();//todo:convert to json string
+                    session.sendMessage(new TextMessage(featureResponseJson));
+                } catch (Exception e) {
+                    closeWsSession(session, e);
+                }
+            }
+            closeWsSession(session, null);
+        }
+    }
+
+    @Override
     public SseEmitter getContainerLocationStream(long containerId) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         SseEmitter sseEmitter = new SseEmitter();
         GetFeatureLocationStreamRequestDto requestDto = GetFeatureLocationStreamRequestDto.newBuilder()
                 .setOwner(getContainerAsOwner(containerId)).build();
         executorService.submit(() -> {
-            featureServiceStub.getFeatureLocationStream(requestDto, new StreamObserver<FeatureResponseDto>() {
-                @Override
-                public void onNext(FeatureResponseDto featureResponseDto) {
-                    try {
-                        String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
-                        sseEmitter.send(SseEmitter.event().data(featureResponseJson));
-                    } catch (Exception e) {
-                        sseEmitter.completeWithError(e);
-                    }
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    sseEmitter.completeWithError(throwable);
-                }
-
-                @Override
-                public void onCompleted() {
-                    sseEmitter.complete();
-                }
-            });
+            featureServiceStub.getFeatureLocationStream(requestDto, getFeatureSseEmitterResponseObserver(sseEmitter));
         });
         return sseEmitter;
     }
@@ -173,29 +256,46 @@ public class ContainerServiceImpl implements ContainerService {
         GetFeatureLocationStreamRequestDto requestDto = GetFeatureLocationStreamRequestDto.newBuilder()
                 .setOwner(getContainerAsOwner(containerId)).build();
         executorService.submit(() -> {
-            featureServiceStub.getFeatureLocationHistoryStream(requestDto, new StreamObserver<FeatureResponseDto>() {
-                @Override
-                public void onNext(FeatureResponseDto featureResponseDto) {
-                    try {
-                        String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
-                        sseEmitter.send(SseEmitter.event().data(featureResponseJson));
-                    } catch (Exception e) {
-                        sseEmitter.completeWithError(e);
-                    }
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    sseEmitter.completeWithError(throwable);
-                }
-
-                @Override
-                public void onCompleted() {
-                    sseEmitter.complete();
-                }
-            });
+            featureServiceStub.getFeatureLocationHistoryStream(requestDto, getFeatureSseEmitterResponseObserver(sseEmitter));
         });
         return sseEmitter;
+    }
+
+    private static ContainerLocationDto mapToContainerLocationDto(FeatureResponseDto featureResponseDto) {
+        GeometryDto geometryDto = new GeometryDto(featureResponseDto.getGeometry().getType(),
+                Collections.singletonList(featureResponseDto.getGeometry().getCoordinates()));
+
+        LocalDateTime time = featureResponseDto.getTimestamp().isEmpty() ? null
+                : LocalDateTime.parse(featureResponseDto.getTimestamp());
+        ContainerLocationDto containerLocationDto = new ContainerLocationDto(
+                Long.valueOf(String.valueOf(featureResponseDto.getProperties().getFieldsOrDefault("id", null))),
+                geometryDto, time
+        );
+        return containerLocationDto;
+    }
+
+    private static StreamObserver<FeatureResponseDto> getFeatureSseEmitterResponseObserver(SseEmitter sseEmitter) {
+        return new StreamObserver<>() {
+            @Override
+            public void onNext(FeatureResponseDto featureResponseDto) {
+                try {
+                    String featureResponseJson = JsonFormat.printer().print(featureResponseDto);
+                    sseEmitter.send(SseEmitter.event().data(featureResponseJson));
+                } catch (Exception exception) {
+                    sseEmitter.completeWithError(exception);
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                sseEmitter.completeWithError(throwable);
+            }
+
+            @Override
+            public void onCompleted() {
+                sseEmitter.complete();
+            }
+        };
     }
 
     private String getContainerAsOwner(Long containerId){
@@ -232,5 +332,13 @@ public class ContainerServiceImpl implements ContainerService {
             else
                 throw exeption;
         }
+    }
+
+    private void closeWsSession(WebSocketSession session, Throwable exception){
+        try {
+            if (session.isOpen()) {
+                session.close();
+            }
+        } catch (Exception ignored) {}
     }
 }

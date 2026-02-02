@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-
 import java.util.List;
 
 @Repository
@@ -21,6 +20,10 @@ public interface ThingRepository extends JpaRepository<Thing, Long> {
     List<Thing> searchThings(
             String title, Long weight, Long containerId, String containerTitle,
             Pageable pageable);
+
+    @Query(value = "Select * from Thing t where (:containerId is not null and t.container_id = :containerId)" +
+            " or (:containerId is null and t.container_id is null) order by t.title", nativeQuery = true)
+    List<Thing> getThingsByContainerId(Long containerId);
 
     @Modifying
     @Query("Update Thing t set t.container.id = :newContainerId where t.container.id = :oldContainerId " +

@@ -2,6 +2,7 @@ package com.fkhr.thingsorganizer.thing.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fkhr.thingsorganizer.thing.dto.NullableIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingCreateDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateContainerIdDto;
 import com.fkhr.thingsorganizer.thing.dto.ThingUpdateDto;
@@ -51,6 +52,12 @@ public class ThingController {
     public ResponseEntity getThingById(@PathVariable("id") Long id) {
         Thing thing = thingService.load(id);
         return new ResponseEntity(thing, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/container-id", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getThingsByContainerId(@RequestBody NullableIdDto filter) {
+        List<Thing> things = thingService.getByContainerId(filter.getId());
+        return new ResponseEntity(things, HttpStatus.OK);
     }
 
     @GetMapping

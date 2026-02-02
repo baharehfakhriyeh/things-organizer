@@ -1,16 +1,12 @@
 package com.fkhr.thingsorganizer.commonsecurity.config;
 
 import com.fkhr.thingsorganizer.commonsecurity.exceptionhandling.SecurityAccessDeniedHandler;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpMethod;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,8 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -46,31 +42,15 @@ public class SecurityKeycloakConfig {
     }
 
     @Bean
-    @Primary
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(securityProperty.getAllowedorigins())); // exact origins
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept","Origin","Access-Control-Allow-Origin"));
-        config.setExposedHeaders(List.of(SecurityConstant.JWT_HEADER));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
-        http.addFilterBefore(new CorsFilter(corsConfigurationSource()), UsernamePasswordAuthenticationFilter.class);
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll() //todo: secure it in proper way
                         .requestMatchers(SecurityConstant.PERMITTED_PAGES.toArray(new String[0])).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -81,12 +61,7 @@ public class SecurityKeycloakConfig {
         return http.build();
     }
 
-    @Bean public FilterRegistrationBean<CorsFilter> corsFilterRegistration(
-            @Qualifier("corsConfigurationSource")CorsConfigurationSource source) {
-        CorsFilter filter = new CorsFilter(source);
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(filter);
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean; }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){

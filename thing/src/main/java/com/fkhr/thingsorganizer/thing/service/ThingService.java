@@ -8,5 +8,8 @@ import java.util.List;
 public interface ThingService extends BaseService<Thing, Long> {
 
     List<Thing> search(Thing thingFilters, int page, int size);
+    List<Thing> getByContainerId(Long containerId);
     Integer updateContainer(Long oldContainerId, Long newContainerId);
+
+
 }
